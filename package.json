@@ -1,0 +1,51 @@
+{
+  "name": "writing-agent",
+  "version": "1.0.1",
+  "description": "WordPress plugin for automatic article generation using AI",
+  "main": "auto-nulis.php",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Building plugin assets...\" && npm run build:css && npm run build:js",
+    "build:css": "echo \"CSS build complete\"",
+    "build:js": "echo \"JS build complete\"",
+    "zip": "powershell Compress-Archive -Path ./* -DestinationPath auto-nulis.zip -Force",
+    "dev": "echo \"Development mode - watch for changes\"",
+    "lint": "echo \"Linting PHP files...\"",
+    "validate": "echo \"Validating WordPress plugin structure...\""
+  },
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "ai",
+    "content",
+    "generation",
+    "seo",    "automation"
+  ],
+  "author": "Writing Agent Team",
+  "license": "GPL-2.0+",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Deal-Tech/writing-agent"
+  },
+  "bugs": {
+    "url": "https://github.com/example/auto-nulis/issues"
+  },
+  "homepage": "https://github.com/example/auto-nulis#readme",
+  "devDependencies": {},
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "wordpress": {
+    "tested": "6.4",
+    "requires": "5.0",
+    "php_version": "7.4",
+    "plugin_uri": "https://example.com/auto-nulis",
+    "author_uri": "https://example.com",
+    "text_domain": "auto-nulis",
+    "domain_path": "/languages",
+    "network": false,
+    "license": "GPL v2 or later",
+    "license_uri": "https://www.gnu.org/licenses/gpl-2.0.html"
+  }
+}

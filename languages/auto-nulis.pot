@@ -1,0 +1,452 @@
+# Writing Agent Language Template
+# This file contains all translatable strings for the Writing Agent plugin
+# To create a translation, copy this file and rename it to auto-nulis-{locale}.pot
+# For example: auto-nulis-id_ID.pot for Indonesian
+
+#: auto-nulis.php:45
+msgid "Auto Nulis Settings"
+msgstr ""
+
+#: auto-nulis.php:46
+msgid "Auto Nulis"
+msgstr ""
+
+#: auto-nulis.php:54 auto-nulis.php:62
+msgid "Settings"
+msgstr ""
+
+#: auto-nulis.php:70 admin/articles-page.php:15
+msgid "Generated Articles"
+msgstr ""
+
+#: auto-nulis.php:78 admin/logs-page.php:15
+msgid "Logs"
+msgstr ""
+
+#: admin/settings-page.php:35
+msgid "Plugin Status"
+msgstr ""
+
+#: admin/settings-page.php:38
+msgid "Enable Auto Article Generation"
+msgstr ""
+
+#: admin/settings-page.php:40
+msgid "Toggle this to enable or disable automatic article generation."
+msgstr ""
+
+#: admin/settings-page.php:46
+msgid "Article Generation Settings"
+msgstr ""
+
+#: admin/settings-page.php:50
+msgid "Articles Per Day"
+msgstr ""
+
+#: admin/settings-page.php:52
+msgid "Number of articles to generate per day (1-10)."
+msgstr ""
+
+#: admin/settings-page.php:57
+msgid "Schedule Time"
+msgstr ""
+
+#: admin/settings-page.php:59
+msgid "Time of day to start generating articles."
+msgstr ""
+
+#: admin/settings-page.php:64
+msgid "Keywords List"
+msgstr ""
+
+#: admin/settings-page.php:66
+msgid "Enter one keyword per line. Each keyword will be used as a topic for generating an article."
+msgstr ""
+
+#: admin/settings-page.php:71
+msgid "Article Length"
+msgstr ""
+
+#: admin/settings-page.php:81
+msgid "Article Status"
+msgstr ""
+
+#: admin/settings-page.php:93
+msgid "Image Settings"
+msgstr ""
+
+#: admin/settings-page.php:97
+msgid "Include Images in Articles"
+msgstr ""
+
+#: admin/settings-page.php:99
+msgid "Automatically add relevant images to generated articles."
+msgstr ""
+
+#: admin/settings-page.php:103
+msgid "Image Source"
+msgstr ""
+
+#: admin/settings-page.php:114
+msgid "WordPress Settings"
+msgstr ""
+
+#: admin/settings-page.php:118
+msgid "Default Category"
+msgstr ""
+
+#: admin/settings-page.php:128
+msgid "Article Author"
+msgstr ""
+
+#: admin/settings-page.php:139
+msgid "AI Configuration"
+msgstr ""
+
+#: admin/settings-page.php:143
+msgid "AI Provider"
+msgstr ""
+
+#: admin/settings-page.php:153
+msgid "AI Model"
+msgstr ""
+
+#: admin/settings-page.php:162
+msgid "API Key"
+msgstr ""
+
+#: admin/settings-page.php:165
+msgid "Test Connection"
+msgstr ""
+
+#: admin/settings-page.php:167
+msgid "Enter your AI provider API key. This will be stored securely."
+msgstr ""
+
+#: admin/settings-page.php:173
+msgid "Save Settings"
+msgstr ""
+
+#: admin/settings-page.php:175
+msgid "Generate Article Now"
+msgstr ""
+
+#: admin/settings-page.php:183
+msgid "Quick Stats"
+msgstr ""
+
+#: admin/settings-page.php:191
+msgid "Keywords Ready"
+msgstr ""
+
+#: admin/settings-page.php:195
+msgid "Total Posts"
+msgstr ""
+
+#: admin/settings-page.php:199
+msgid "Daily Target"
+msgstr ""
+
+#: admin/settings-page.php:204
+msgid "Next Scheduled Run"
+msgstr ""
+
+#: admin/settings-page.php:213
+msgid "Not scheduled"
+msgstr ""
+
+#: admin/settings-page.php:218
+msgid "Tips"
+msgstr ""
+
+#: admin/settings-page.php:220
+msgid "Use specific, focused keywords for better article quality"
+msgstr ""
+
+#: admin/settings-page.php:221
+msgid "Start with Draft status to review articles before publishing"
+msgstr ""
+
+#: admin/settings-page.php:222
+msgid "Test your API connection before enabling auto-generation"
+msgstr ""
+
+#: admin/settings-page.php:223
+msgid "Monitor the logs for any issues"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:75
+msgid "Settings saved successfully!"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:120
+msgid "Short (300-500 words)"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:121
+msgid "Medium (500-800 words)"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:122
+msgid "Long (800-1200+ words)"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:132
+msgid "Published"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:133
+msgid "Draft"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:134
+msgid "Pending Review"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:144
+msgid "Google AI (Gemini)"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:145
+msgid "OpenAI"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:175
+msgid "Unsplash API"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:176
+msgid "Pexels API"
+msgstr ""
+
+#: includes/class-auto-nulis-admin.php:177
+msgid "WordPress Media Library"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:35
+msgid "API key is required"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:45
+msgid "API connection successful!"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:49
+msgid "Invalid API response"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:54
+msgid "Connection failed: %s"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:65
+msgid "API key not configured"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:79
+msgid "Empty or invalid API response"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:212
+msgid "Invalid AI provider"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:274
+msgid "Invalid response format from Gemini API"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:316
+msgid "Invalid response format from OpenAI API"
+msgstr ""
+
+#: includes/class-auto-nulis-api.php:343
+msgid "Complete Guide to %s"
+msgstr ""
+
+#: includes/class-auto-nulis-generator.php:41
+msgid "Plugin is disabled"
+msgstr ""
+
+#: includes/class-auto-nulis-generator.php:50
+msgid "No keywords available"
+msgstr ""
+
+#: includes/class-auto-nulis-generator.php:64
+msgid "Failed to generate article content"
+msgstr ""
+
+#: includes/class-auto-nulis-generator.php:71
+msgid "Failed to create WordPress post"
+msgstr ""
+
+#: includes/class-auto-nulis-generator.php:88
+msgid "Article generated successfully!"
+msgstr ""
+
+#: admin/articles-page.php:30
+msgid "Total Generated"
+msgstr ""
+
+#: admin/articles-page.php:42
+msgid "Generated Today"
+msgstr ""
+
+#: admin/articles-page.php:54
+msgid "Published"
+msgstr ""
+
+#: admin/articles-page.php:62
+msgid "Title"
+msgstr ""
+
+#: admin/articles-page.php:63
+msgid "Keyword"
+msgstr ""
+
+#: admin/articles-page.php:64
+msgid "Status"
+msgstr ""
+
+#: admin/articles-page.php:65
+msgid "Generated"
+msgstr ""
+
+#: admin/articles-page.php:66
+msgid "Actions"
+msgstr ""
+
+#: admin/articles-page.php:80
+msgid "Has featured image"
+msgstr ""
+
+#: admin/articles-page.php:85
+msgid "N/A"
+msgstr ""
+
+#: admin/articles-page.php:120
+msgid "Edit"
+msgstr ""
+
+#: admin/articles-page.php:125
+msgid "View"
+msgstr ""
+
+#: admin/articles-page.php:131
+msgid "Are you sure you want to delete this post?"
+msgstr ""
+
+#: admin/articles-page.php:132
+msgid "Delete"
+msgstr ""
+
+#: admin/articles-page.php:150
+msgid "&laquo; Previous"
+msgstr ""
+
+#: admin/articles-page.php:151
+msgid "Next &raquo;"
+msgstr ""
+
+#: admin/articles-page.php:159
+msgid "No Articles Generated Yet"
+msgstr ""
+
+#: admin/articles-page.php:160
+msgid "Once you configure the plugin and start generating articles, they will appear here."
+msgstr ""
+
+#: admin/articles-page.php:162
+msgid "Configure Plugin"
+msgstr ""
+
+#: admin/logs-page.php:51
+msgid "Activity Logs"
+msgstr ""
+
+#: admin/logs-page.php:58
+msgid "Log Level"
+msgstr ""
+
+#: admin/logs-page.php:60
+msgid "All Levels"
+msgstr ""
+
+#: admin/logs-page.php:61
+msgid "Success"
+msgstr ""
+
+#: admin/logs-page.php:62
+msgid "Info"
+msgstr ""
+
+#: admin/logs-page.php:63
+msgid "Warning"
+msgstr ""
+
+#: admin/logs-page.php:64
+msgid "Error"
+msgstr ""
+
+#: admin/logs-page.php:69
+msgid "Date"
+msgstr ""
+
+#: admin/logs-page.php:74
+msgid "Filter"
+msgstr ""
+
+#: admin/logs-page.php:76
+msgid "Clear Filters"
+msgstr ""
+
+#: admin/logs-page.php:104
+msgid "Timestamp"
+msgstr ""
+
+#: admin/logs-page.php:105
+msgid "Level"
+msgstr ""
+
+#: admin/logs-page.php:106
+msgid "Message"
+msgstr ""
+
+#: admin/logs-page.php:107
+msgid "Details"
+msgstr ""
+
+#: admin/logs-page.php:124
+msgid "View"
+msgstr ""
+
+#: admin/logs-page.php:126
+msgid "None"
+msgstr ""
+
+#: admin/logs-page.php:132
+msgid "Context:"
+msgstr ""
+
+#: admin/logs-page.php:154
+msgid "No Logs Found"
+msgstr ""
+
+#: admin/logs-page.php:155
+msgid "No activity logs match your current filters."
+msgstr ""
+
+#: admin/logs-page.php:162
+msgid "Clear All Logs"
+msgstr ""
+
+#: admin/logs-page.php:163
+msgid "Are you sure you want to clear all logs? This action cannot be undone."
+msgstr ""
+
+#: admin/logs-page.php:166
+msgid "Refresh"
+msgstr ""
+
+#: admin/logs-page.php:170
+msgid "Export Logs"
+msgstr ""
