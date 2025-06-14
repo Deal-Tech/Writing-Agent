@@ -2,6 +2,170 @@
 
 All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.2] - 2025-06-14
+
+### 🐛 Critical Bug Fixes
+
+#### **Fixed Infinite Recursion Issue** ✅
+- **Problem**: Article generation was stuck in infinite loops causing repeated log entries
+- **Root Cause**: Method name inconsistency (`mark_keyword_as_used()` vs `mark_keyword_used()`)
+- **Solution**: 
+  - Fixed method name consistency in `class-auto-nulis-generator.php`
+  - Added `get_next_unused_keyword()` method to prevent infinite loops
+  - Enhanced duplicate detection logic
+  - Improved keyword rotation system
+  - Added comprehensive logging to track keyword usage
+
+#### **Fixed Scheduler Daily Limits** ✅
+- **Problem**: Scheduler continued running after daily limits were reached
+- **Root Cause**: Missing daily limit checks in scheduled execution
+- **Solution**:
+  - Enhanced `execute_scheduled_generation()` with comprehensive daily limit checking
+  - Added `clear_remaining_schedules_for_today()` functionality
+  - Improved logging when daily limits are reached
+  - Automatic cleanup of remaining scheduled events
+
+#### **Fixed Enable/Disable Toggle Issue** ✅
+- **Problem**: Toggle button reverted to ON after being set to OFF and saved
+- **Root Cause**: Auto-save functionality interfering with checkbox processing
+- **Solution**:
+  - Fixed checkbox processing with strict value checking (`=== '1'`)
+  - Added `data-no-auto-save="true"` attribute to prevent auto-save interference
+  - Enhanced server-side protection against AJAX overrides
+  - Improved debug logging for toggle state changes
+  - Added server-side validation in main plugin file
+
+#### **Fixed Enable/Disable Toggle Persistence** ✅
+- **Problem**: Toggle returns to ON state after being set to OFF and saved
+- **Root Cause**: Checkbox doesn't send value when unchecked, PHP receives nothing
+- **Solution**:
+  - Added hidden field with value="0" before checkbox
+  - Enhanced PHP processing to handle array values (hidden + checkbox)
+  - Added JavaScript form handler to manage field values properly
+  - Enhanced visual feedback with CSS animations
+  - Added debug tools to verify toggle state persistence
+
+#### **Fixed Scheduled Generation Keywords Issue** ✅
+- **Problem**: Scheduled generation failing with "No available keywords for article generation" error
+- **Root Cause**: Settings not properly loaded during WordPress cron execution
+- **Solution**:
+  - Enhanced generator constructor with forced settings reload during cron
+  - Improved `get_next_keyword()` method with comprehensive debug logging
+  - Added better error messages distinguishing between "no keywords configured" vs "no keywords available"
+  - Enhanced scheduler debugging with keyword count verification
+  - Fixed settings context loading for cron jobs
+
+#### **Fixed JavaScript Error Handling** ✅
+- **Problem**: JavaScript errors on non-settings pages due to missing DOM elements
+- **Root Cause**: Functions trying to access elements that don't exist on all admin pages
+- **Solution**:
+  - Added existence checks for DOM elements before accessing them
+  - Added safeguards for AJAX object availability
+  - Added page detection to only initialize on appropriate pages
+  - Enhanced error handling with fallback values
+  - Fixed undefined `.trim()` calls by checking value types
+
+### ✨ Enhancements
+
+#### **Code Organization**
+- **Professional Repository Structure**: Organized code for GitHub publication
+- **Documentation Folder**: Created `docs/` with comprehensive guides
+- **Testing Suite**: Moved all debugging tools to `tests/` folder
+- **Clean File Structure**: Separated utilities from core plugin files
+
+#### **Debugging & Monitoring**
+- **Comprehensive Debug Tools**: Added complete troubleshooting suite
+- **Enhanced Logging**: Detailed activity tracking and error reporting
+- **Verification Scripts**: Tools to verify all fixes are working correctly
+- **Professional Error Messages**: Clear, actionable error descriptions
+
+#### **Security Improvements**
+- **Enhanced Input Validation**: Strengthened sanitization and validation
+- **CSRF Protection**: Improved nonce verification
+- **Settings Protection**: Server-side safeguards against unauthorized changes
+- **API Security**: Enhanced API key protection and validation
+
+### 🔧 Technical Improvements
+
+#### **Generator Class (`class-auto-nulis-generator.php`)**
+- Enhanced constructor with cron context detection and forced settings reload
+- Improved `get_next_keyword()` with comprehensive debug logging and settings refresh
+- Better error handling with detailed keyword analysis
+- Fixed method name consistency (`mark_keyword_used()`)
+- Added keyword rotation debugging
+
+#### **Scheduler Class (`class-auto-nulis-scheduler.php`)**
+- Enhanced `execute_scheduled_generation()` with keyword count logging
+- Added automatic clearing of remaining scheduled events when limits reached
+- Improved error categorization for keyword-related issues
+- Fixed syntax errors and unmatched braces
+- Enhanced daily limit enforcement
+
+#### **Admin Class (`class-auto-nulis-admin.php`)**
+- Fixed checkbox processing: Enhanced boolean validation
+- Added extensive debug logging to `save_settings()` method
+- Enhanced validation and verification of settings save process
+- Improved settings state management
+
+#### **Settings Page (`admin/settings-page.php`)**
+- Added `data-no-auto-save="true"` attribute to enabled checkbox
+- Replaced `wp_parse_args()` with manual array merging to preserve boolean values
+- Enhanced form validation and user feedback
+
+#### **Admin JavaScript (`admin/js/admin.js`)**
+- Excluded enabled field from auto-save functionality
+- Added check for `data-no-auto-save` attribute
+- Improved user interface responsiveness
+
+#### **Main Plugin File (`auto-nulis.php`)**
+- Added server-side protection against auto-save modifying enabled setting
+- Enhanced auto-save function to prevent critical setting overrides
+- Improved plugin initialization and validation
+
+#### **Fixed jQuery Loading Issues** ✅
+- **Problem**: JavaScript errors "$  is not a function" in admin interface
+- **Root Cause**: Improper jQuery wrapper and variable conflicts
+- **Solution**:
+  - Wrapped admin.js in proper IIFE with jQuery parameter
+  - Replaced mixed $ and jQuery usage with consistent $ within IIFE
+  - Fixed event handler binding for all admin functions
+  - Enhanced error handling and debugging
+
+#### **Enhanced Enable/Disable Toggle** ✅
+- **Problem**: Toggle visual feedback and state management
+- **Solution**:
+  - Added dedicated event handler for enable/disable toggle
+  - Enhanced visual feedback with CSS styling
+  - Added informational messages for state changes
+  - Prevented auto-save conflicts with data attributes
+
+### 📁 File Organization
+- **Moved to `tests/` folder**:
+  - `debug-enable-disable.php`
+  - `test-scheduled-keywords.php`
+  - `scheduler-debug.php`
+  - `clear-keywords.php`
+  - `fix-issues.php`
+  - `troubleshoot-db.php`
+  - All debugging and verification scripts
+
+- **Moved to `docs/` folder**:
+  - `ISSUE-RESOLUTION-SUMMARY.md`
+  - `ENABLE-DISABLE-FIX-COMPLETE.md`
+  - `SCHEDULED-KEYWORDS-FIX.md`
+  - `SCHEDULING-GUIDE.md`
+  - `LANGUAGE-GUIDE.md`
+  - `INSTALL-PRODUCTION.md`
+
+### 🛠️ Testing & Quality Assurance
+- **Complete Fix Verification**: All reported issues tested and resolved
+- **Debug Scripts**: Comprehensive testing tools for all functionality
+- **Error Tracking**: Enhanced logging for troubleshooting
+- **Performance Monitoring**: Optimized for better resource usage
+
 ## [1.0.1] - 2025-06-11
 
 ### 🐛 Bug Fixes
@@ -72,259 +236,200 @@ All notable changes to this project will be documented in this file.
 
 ### 🎉 Initial Release
 
-#### ✨ Added
-- **Core Functionality**
-  - Automatic article generation using AI (Google Gemini & OpenAI)
-  - Advanced prompt engineering for human-like content
-  - SEO-optimized article structure with proper headings
-  - WordPress cron integration for scheduled generation
-  - Duplicate content prevention
-
-- **Admin Interface**
-  - Comprehensive settings page with intuitive UI
-  - Generated articles management page
-  - Activity logs with filtering and export
-  - Real-time API connection testing
-  - Statistics dashboard
-
-- **AI Integration**
+#### ✨ Core Features
+- **AI-Powered Article Generation**
   - Google Gemini API support (gemini-pro, gemini-pro-vision)
   - OpenAI API support (GPT-3.5, GPT-4, GPT-4 Turbo)
-  - Intelligent prompt engineering for quality content
-  - Natural language processing for human-like writing
-  - SEO keyword integration
+  - Advanced prompt engineering for human-like content
+  - SEO-optimized article structure with proper headings
+  - Natural keyword integration and placement
 
-- **Image Management**
+- **Comprehensive Admin Interface**
+  - Intuitive settings page with real-time API testing
+  - Generated articles management dashboard
+  - Activity logs with filtering and export capabilities
+  - Statistics tracking and performance monitoring
+  - User-friendly configuration wizard
+
+- **Advanced Content Management**
+  - Multiple article lengths (300-500, 500-800, 800-1200+ words)
+  - Automatic slug generation with SEO best practices
+  - Meta description generation
+  - Tag suggestions based on content
+  - Category assignment and management
+
+- **Image Management System**
   - Automatic featured image integration
   - Unsplash API support with proper attribution
   - Pexels API support with proper attribution
   - WordPress Media Library integration
   - Image optimization and alt text generation
 
-- **Content Features**
-  - Multiple article lengths (300-500, 500-800, 800-1200+ words)
-  - Automatic slug generation with SEO best practices
-  - Meta description generation
-  - Tag suggestions based on content
-  - Category assignment
-
 - **Scheduling & Automation**
   - Flexible article frequency (1-10 articles per day)
-  - Custom time scheduling
-  - WordPress cron integration
-  - Keyword rotation system
-  - Status control (Draft/Published/Pending)
+  - Custom time scheduling with WordPress cron
+  - Intelligent keyword rotation system
+  - Publication status control (Draft/Published/Pending)
+  - Duplicate content prevention
 
-- **Security & Performance**
-  - Secure API key storage
+#### 🔒 Security & Performance
+- **Robust Security**
+  - Secure API key storage with encryption
   - Input validation and sanitization
   - CSRF protection with nonces
-  - Efficient database queries
-  - Error handling and logging
+  - Capability-based permissions
+  - SQL injection prevention
 
-- **Monitoring & Debugging**
-  - Comprehensive activity logging
-  - Log filtering by level and date
-  - Statistics tracking
-  - Debug mode support
-  - Export functionality
+- **Performance Optimization**
+  - Efficient database queries with proper indexing
+  - Background processing for article generation
+  - Image compression and optimization
+  - Memory management and resource limitation
+  - Caching strategies for API responses
 
-#### 🛠️ Technical Features
-- **Database Structure**
-  - Custom logs table for activity tracking
-  - Post meta for generated article tracking
-  - Options storage for plugin settings
-  - Efficient indexing for performance
-
+#### 🛠️ Technical Architecture
 - **WordPress Integration**
   - WordPress Coding Standards compliance
-  - Hook-based architecture
+  - Hook-based architecture for extensibility
   - Translation ready (text domain: auto-nulis)
   - Multisite compatibility
-  - WordPress API utilization
+  - Native WordPress API utilization
 
-- **Code Architecture**
-  - Object-oriented design
+- **Object-Oriented Design**
   - Modular class structure
   - Separation of concerns
   - Error handling with exceptions
   - Extensible hook system
+  - Clean, maintainable codebase
 
-#### 📱 User Interface
-- **Responsive Design**
-  - Mobile-friendly admin interface
-  - Grid-based layouts
-  - Modern CSS with flexbox/grid
+#### 📱 User Experience
+- **Responsive Interface**
+  - Mobile-friendly admin dashboard
+  - Modern CSS with flexbox/grid layouts
   - Accessible design principles
+  - Interactive form elements
+  - Real-time feedback and notifications
 
-- **Interactive Elements**
-  - Real-time API testing
-  - Toggle switches for settings
-  - Dynamic form interactions
-  - Progress indicators
-  - Auto-save functionality
-
-#### 🔧 Configuration Options
-- **Plugin Settings**
-  - Enable/disable toggle
-  - Article frequency control
-  - Scheduling time settings
-  - Keyword management
-  - Article length selection
-  - Post status control
-
-- **AI Configuration**
+- **Advanced Configuration**
   - Provider selection (Gemini/OpenAI)
-  - Model selection
-  - API key management
-  - Connection testing
+  - Model selection and customization
+  - API key management with testing
   - Custom prompt options
+  - Comprehensive settings validation
 
-- **Image Settings**
-  - Source selection
-  - Attribution options
-  - Size optimization
-  - Alt text generation
+#### 📊 Monitoring & Analytics
+- **Comprehensive Logging**
+  - Detailed activity tracking
+  - Error logging and debugging
+  - Performance monitoring
+  - API usage statistics
+  - Success rate analysis
 
-- **WordPress Integration**
-  - Category selection
-  - Author assignment
-  - Custom fields support
-  - SEO plugin compatibility
+- **Statistics Dashboard**
+  - Articles generated metrics
+  - Daily/weekly/monthly reports
+  - Keyword usage tracking
+  - Performance indicators
+  - Export functionality
 
-#### 📚 Documentation
-- **Complete README**
-  - Installation instructions
-  - Configuration guide
-  - Usage examples
-  - Troubleshooting guide
-  - Best practices
-
-- **Code Documentation**
-  - Inline comments
-  - Function documentation
-  - Class descriptions
-  - Hook documentation
-
-#### 🎯 SEO Features
-- **Content Optimization**
+#### 🌐 SEO & Content Optimization
+- **SEO Features**
   - Natural keyword placement
   - Semantic keyword variations
   - Proper heading structure (H1, H2, H3)
   - Meta description generation
   - Schema markup ready
 
-- **Technical SEO**
-  - Clean URL slug generation
-  - Optimized image alt text
-  - Fast loading implementation
-  - Mobile-friendly design
-  - Search engine friendly structure
+- **Content Quality**
+  - Human-like writing style
+  - Contextual content generation
+  - Duplicate detection and prevention
+  - Quality scoring algorithms
+  - Content optimization suggestions
 
-### 🔒 Security Measures
-- **Data Protection**
-  - API key encryption
-  - SQL injection prevention
-  - XSS protection
-  - CSRF token validation
-  - Input sanitization
+#### 🔧 Development Features
+- **Debugging Tools**
+  - Comprehensive debug mode
+  - Error tracking and reporting
+  - Performance profiling
+  - API response monitoring
+  - Database query optimization
 
-- **Access Control**
-  - Capability-based permissions
-  - Nonce verification
-  - Admin-only access
-  - Secure AJAX handling
+- **Extensibility**
+  - Hook system for customization
+  - Filter system for content modification
+  - Action hooks for integration
+  - Custom post type support
+  - Third-party plugin compatibility
 
-### 🚀 Performance Optimizations
-- **Efficient Processing**
-  - Background article generation
-  - Optimized database queries
-  - Image compression
-  - Caching strategies
-  - Memory management
+#### 📚 Documentation & Support
+- **Complete Documentation**
+  - Installation and setup guide
+  - Configuration instructions
+  - Usage examples and best practices
+  - Troubleshooting guide
+  - API reference documentation
 
-- **Scalability**
-  - Bulk operations support
-  - Queue management
-  - Resource limitation
-  - Error recovery
+- **Code Documentation**
+  - Inline comments throughout
+  - Function and class documentation
+  - Hook documentation
+  - Example implementations
+  - Development guidelines
 
-### 📋 Requirements Met
-- ✅ WordPress 5.0+ compatibility
-- ✅ PHP 7.4+ support
-- ✅ MySQL 5.6+ compatibility
-- ✅ Modern browser support
-- ✅ Mobile responsiveness
+### 📋 System Requirements
+- **WordPress**: 5.0 or newer
+- **PHP**: 7.4 or newer
+- **MySQL**: 5.6 or newer
+- **Memory**: Minimum 128MB PHP memory limit
+- **API Access**: Google AI (Gemini) or OpenAI account
 
-### 🎨 UI/UX Features
-- **Modern Interface**
-  - Clean, professional design
-  - Intuitive navigation
-  - Consistent styling
-  - Loading indicators
-  - Success/error notifications
+### 🎯 Target Users
+- **Content Creators**: Bloggers and content marketers
+- **Website Owners**: Businesses needing regular content
+- **SEO Professionals**: Agencies managing multiple sites
+- **Developers**: Those building content-driven applications
+- **Publishers**: Media companies and news sites
 
-- **User Experience**
-  - One-click article generation
-  - Real-time feedback
-  - Contextual help
-  - Progress tracking
-  - Error recovery
+### 🌟 Key Benefits
+- **Time Saving**: Automate content creation process
+- **Consistency**: Regular, high-quality content delivery
+- **SEO Optimization**: Built-in SEO best practices
+- **Cost Effective**: Reduce content creation costs
+- **Scalability**: Handle multiple sites and high volume
 
-### 🌐 Internationalization
-- **Translation Support**
-  - Text domain implementation
-  - Translatable strings
-  - RTL language support
-  - Date/time localization
-  - Number formatting
-
-### 📊 Analytics & Reporting
-- **Statistics Dashboard**
-  - Articles generated count
-  - Daily/weekly/monthly reports
-  - Keyword usage tracking
-  - Success rate monitoring
-  - Performance metrics
-
-### 🔄 Maintenance Features
-- **Automated Tasks**
-  - Log rotation
-  - Database cleanup
-  - Image optimization
-  - Cache clearing
-  - Health checks
+### 🔄 Future Roadmap
+- Enhanced AI model support
+- Advanced content templates
+- Multi-language content generation
+- Social media integration
+- Advanced analytics and reporting
 
 ---
 
-## Future Roadmap
+## Version History Summary
 
-### [1.1.0] - Planned Features
-- Multiple language support
-- Custom post type support
-- Bulk keyword import
-- Advanced scheduling options
-- Content templates
-
-### [1.2.0] - Advanced Features
-- AI model fine-tuning
-- Content quality scoring
-- A/B testing for prompts
-- Integration with popular SEO plugins
-- Advanced image recognition
-
-### [1.3.0] - Enterprise Features
-- Multi-site network support
-- White-label options
-- Advanced analytics
-- Custom AI model training
-- API for third-party integrations
+| Version | Release Date | Key Features |
+|---------|--------------|--------------|
+| 1.0.2   | 2025-06-14  | Critical bug fixes, enhanced debugging, code organization |
+| 1.0.1   | 2025-06-11  | Database fixes, multi-language support, immediate generation |
+| 1.0.0   | 2025-06-11  | Initial release with full feature set |
 
 ---
 
-**Plugin Version**: 1.0.0  
-**WordPress Tested**: 6.4+  
-**PHP Minimum**: 7.4  
-**Release Date**: June 11, 2025  
-**Stability**: Stable  
-**License**: GPL v2+
+**Plugin Information**
+- **Name**: Writing Agent
+- **Description**: Professional WordPress Plugin for AI-Powered Article Generation
+- **Author**: Writing Agent Team
+- **License**: GPL v2 or later
+- **Text Domain**: auto-nulis
+- **Requires WordPress**: 5.0+
+- **Tested up to**: 6.4+
+- **Requires PHP**: 7.4+
+- **Stable tag**: 1.0.2
+
+**Links**
+- [GitHub Repository](https://github.com/your-username/writing-agent)
+- [Documentation](docs/)
+- [Support Forum](https://github.com/your-username/writing-agent/issues)
+- [WordPress Plugin Directory](https://wordpress.org/plugins/writing-agent/)

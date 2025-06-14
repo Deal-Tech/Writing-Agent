@@ -1,299 +1,375 @@
-# Writing Agent - WordPress Plugin untuk Pembuatan Artikel Otomatis
+# 🤖 Writing Agent
 
-Plugin WordPress yang menggunakan teknologi AI (Google Gemini & OpenAI) untuk membuat artikel berkualitas tinggi secara otomatis dengan fokus pada SEO dan konten yang human-like.
+[![WordPress](https://img.shields.io/badge/WordPress-5.0+-blue.svg)](https://wordpress.org/)
+[![PHP](https://img.shields.io/badge/PHP-7.4+-purple.svg)](https://php.net/)
+[![License](https://img.shields.io/badge/License-GPL%20v2+-green.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
+[![Version](https://img.shields.io/badge/Version-1.0.2-orange.svg)](https://github.com/Deal-Tech/Writing-Agent)
 
-## 🚀 Fitur Utama
+**Professional WordPress Plugin for Automated AI-Powered Article Generation**
 
-### ✨ Pembuatan Artikel Otomatis
-- **AI-Powered**: Menggunakan Google Gemini atau OpenAI untuk menghasilkan konten berkualitas
-- **SEO-Optimized**: Artikel dioptimalkan untuk mesin pencari dengan penempatan kata kunci yang natural
-- **Human-like**: Konten terasa natural dan tidak terdeteksi sebagai buatan AI
-- **Multiple Lengths**: Dukungan artikel pendek (300-500 kata), sedang (500-800 kata), dan panjang (800-1200+ kata)
+An advanced WordPress plugin that leverages cutting-edge AI technology (Google Gemini & OpenAI) to automatically generate high-quality, SEO-optimized articles with human-like writing quality.
 
-### 🎛️ Panel Kontrol Lengkap
-- **Dashboard Intuitif**: Interface admin yang bersih dan mudah digunakan
-- **Penjadwalan Fleksibel**: Atur frekuensi dan waktu pembuatan artikel
-- **Manajemen Kata Kunci**: Input mudah dengan dukungan multiple keywords
-- **Status Kontrol**: Pilih status publikasi (Published/Draft/Pending)
+## 🚀 Key Features
 
-### 🖼️ Manajemen Gambar Otomatis
-- **Multiple Sources**: Dukungan Unsplash, Pexels, dan WordPress Media Library
-- **Auto Attribution**: Atribusi gambar otomatis sesuai sumber
-- **SEO-Friendly Alt Text**: Alt text yang deskriptif untuk SEO
+### ✨ **AI-Powered Content Generation**
+- **Multi-AI Support**: Compatible with Google Gemini and OpenAI APIs
+- **SEO-Optimized**: Articles structured for search engine optimization
+- **Human-Like Quality**: Advanced prompt engineering for natural content
+- **Multiple Lengths**: Support for short (300-500), medium (500-800), and long (800-1200+) articles
+- **Keyword Integration**: Natural keyword placement for organic SEO
 
-### 📊 Monitoring & Analytics
-- **Activity Logs**: Log lengkap aktivitas plugin
-- **Statistics Dashboard**: Statistik artikel yang dihasilkan
-- **Generated Articles Manager**: Kelola artikel yang sudah dibuat
+### 🎛️ **Comprehensive Admin Control**
+- **Intuitive Dashboard**: Clean, user-friendly interface
+- **Flexible Scheduling**: Configure generation frequency and timing
+- **Keyword Management**: Easy bulk keyword input and management
+- **Status Control**: Choose publication status (Published/Draft/Pending)
+- **Real-time Monitoring**: Live activity logs and statistics
 
-## 📋 Persyaratan
+### 🖼️ **Advanced Image Management**
+- **Multiple Sources**: Support for Unsplash, Pexels, and WordPress Media Library
+- **Automatic Attribution**: Proper image credits and licensing
+- **SEO-Friendly Alt Text**: Descriptive alt text for accessibility and SEO
+- **Smart Image Selection**: Context-aware image matching
 
-- WordPress 5.0 atau lebih baru
-- PHP 7.4 atau lebih baru
-- MySQL 5.6 atau lebih baru
-- API Key dari Google AI (Gemini) atau OpenAI
-- Koneksi internet stabil
+### 📊 **Professional Monitoring & Analytics**
+- **Comprehensive Logging**: Detailed activity tracking
+- **Statistics Dashboard**: Article generation metrics
+- **Error Handling**: Advanced debugging and troubleshooting
+- **Performance Monitoring**: API usage and generation time tracking
 
-## 🔧 Instalasi
+## 📋 Requirements
 
-### Metode 1: Upload Manual
+- **WordPress**: 5.0 or newer
+- **PHP**: 7.4 or newer  
+- **MySQL**: 5.6 or newer
+- **API Key**: Google AI (Gemini) or OpenAI
+- **Internet**: Stable connection required
+- **Memory**: Minimum 128MB PHP memory limit recommended
+
+## 🔧 Installation
+
+### Method 1: WordPress Admin Upload
 
 1. **Download Plugin**
-   ```
-   Download folder plugin 'auto-nulis' lengkap
-   ```
-
-2. **Upload ke WordPress**
-   - Kompres folder `auto-nulis` menjadi file ZIP
-   - Login ke WordPress Admin
-   - Pergi ke `Plugins > Add New > Upload Plugin`
-   - Upload file ZIP dan aktifkan
-
-3. **Atau Upload via FTP**
-   - Upload folder `auto-nulis` ke `/wp-content/plugins/`
-   - Login ke WordPress Admin
-   - Pergi ke `Plugins` dan aktifkan "Writing Agent"
-
-### Metode 2: FTP Direct
-
-1. **Upload via FTP**
-   ```
-   Upload folder auto-nulis ke:
-   /wp-content/plugins/auto-nulis/
+   ```powershell
+   # Download the latest release
+-  git clone https://github.com/your-username/writing-agent.git
++  git clone https://github.com/Deal-Tech/Writing-Agent.git
    ```
 
-2. **Set Permissions**
+2. **Prepare Plugin**
+   ```powershell
+   # Create ZIP file for upload
+   Compress-Archive -Path "auto-nulis" -DestinationPath "writing-agent.zip"
    ```
+
+3. **Upload via WordPress Admin**
+   - Go to `Plugins > Add New > Upload Plugin`
+   - Select the ZIP file and install
+   - Activate the plugin
+
+### Method 2: FTP/Direct Upload
+
+1. **Upload Files**
+   ```powershell
+   # Upload the entire folder to:
+   # /wp-content/plugins/auto-nulis/
+   ```
+
+2. **Set Permissions** (if needed)
+   ```bash
    chmod 755 /wp-content/plugins/auto-nulis/
    chmod 644 /wp-content/plugins/auto-nulis/*.php
    ```
 
-3. **Aktifkan Plugin**
-   - Login ke WordPress Admin
-   - Pergi ke `Plugins` dan aktifkan "Writing Agent"
+3. **Activate Plugin**
+   - Go to WordPress Admin > Plugins
+   - Find "Writing Agent" and click Activate
 
-## ⚙️ Konfigurasi
+## ⚙️ Configuration
 
-### 1. Dapatkan API Key
+### 1. Get API Keys
 
-#### Google AI (Gemini)
-1. Kunjungi [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Buat API key baru
-3. Salin API key untuk digunakan di plugin
+#### Google AI (Gemini) - Recommended
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Copy the API key for plugin configuration
 
-#### OpenAI
-1. Kunjungi [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Buat API key baru
-3. Salin API key untuk digunakan di plugin
+#### OpenAI (Alternative)
+1. Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Create a new API key
+3. Copy the API key for plugin configuration
 
-### 2. Konfigurasi Plugin
+### 2. Plugin Setup
 
-1. **Akses Settings**
-   - Pergi ke `Writing Agent > Settings` di WordPress Admin
+1. **Access Settings**
+   - Navigate to `Writing Agent > Settings` in WordPress Admin
 
-2. **Konfigurasi Dasar**
-   - ✅ Enable plugin
-   - 📝 Masukkan API Key
-   - 🔧 Pilih AI Provider (Gemini/OpenAI)
-   - 🎯 Test koneksi API
+2. **Basic Configuration**
+   - ✅ Enable the plugin
+   - 🔑 Enter your API Key
+   - 🤖 Select AI Provider (Gemini/OpenAI)
+   - 🔧 Test API connection
 
-3. **Pengaturan Artikel**
+3. **Article Settings**
    ```
    📊 Articles Per Day: 1-10
-   ⏰ Schedule Time: 09:00 (contoh)
-   📝 Keywords: (satu per baris)
-        teknologi AI
-        digital marketing
-        web development
+   ⏰ Schedule Time: 09:00 (example)
+   📝 Keywords: (one per line)
+        AI technology trends
+        digital marketing strategies
+        web development best practices
    📏 Article Length: Medium (500-800 words)
    📊 Post Status: Draft
    ```
 
-4. **Pengaturan Gambar**
+4. **Image Configuration** (Optional)
    ```
    🖼️ Include Images: ✅ Enable
    🌐 Image Source: Unsplash API
    ```
 
-5. **Pengaturan WordPress**
+5. **WordPress Integration**
    ```
-   📁 Category: Pilih kategori default
-   👤 Author: Pilih penulis artikel
+   📁 Category: Select default category
+   👤 Author: Choose article author
    ```
 
-### 3. Setup API Keys Gambar (Opsional)
+### 3. Image API Setup (Optional)
 
-#### Untuk Unsplash
-1. Daftar di [Unsplash Developers](https://unsplash.com/developers)
-2. Tambahkan ke `wp-config.php`:
+#### For Unsplash
+1. Register at [Unsplash Developers](https://unsplash.com/developers)
+2. Add to `wp-config.php`:
    ```php
    define('AUTO_NULIS_UNSPLASH_KEY', 'your_unsplash_access_key');
    ```
 
-#### Untuk Pexels
-1. Daftar di [Pexels API](https://www.pexels.com/api/)
-2. Tambahkan ke `wp-config.php`:
+#### For Pexels
+1. Register at [Pexels API](https://www.pexels.com/api/)
+2. Add to `wp-config.php`:
    ```php
    define('AUTO_NULIS_PEXELS_KEY', 'your_pexels_api_key');
    ```
 
-## 🚀 Penggunaan
+## 🚀 Usage
 
-### Mengaktifkan Auto-Generation
+### Quick Start Guide
 
-1. **Konfigurasi Lengkap**
-   - Pastikan API key sudah diset
-   - Test koneksi API berhasil
-   - Keywords sudah dimasukkan
+1. **Complete Configuration**
+   - Ensure API key is set and tested
+   - Add relevant keywords (one per line)
+   - Configure article settings
 
-2. **Enable Plugin**
-   - Toggle "Enable Auto Article Generation" ke ON
+2. **Enable Auto-Generation**
+   - Toggle "Enable Auto Article Generation" to ON
    - Save settings
+   - Plugin will start generating according to schedule
 
 3. **Manual Generation**
-   - Klik "Generate Article Now" untuk test
-   - Artikel akan muncul di Posts
+   - Click "Generate Article Now" for immediate testing
+   - Monitor in `Writing Agent > Generated Articles`
 
-### Monitoring
+### Monitoring Your Content
 
 1. **Generated Articles**
-   - Pergi ke `Writing Agent > Generated Articles`
-   - Lihat semua artikel yang sudah dibuat
-   - Edit atau publikasikan artikel
+   - Navigate to `Writing Agent > Generated Articles`
+   - Review, edit, and publish articles
+   - Manage article status and categories
 
 2. **Activity Logs**
-   - Pergi ke `Writing Agent > Logs`
-   - Monitor aktivitas plugin
-   - Debug jika ada masalah
+   - Check `Writing Agent > Logs` for detailed activity
+   - Monitor API usage and errors
+   - Debug any generation issues
 
-## 🎯 Tips Penggunaan
+## 🎯 Best Practices
 
-### Keywords yang Efektif
+### Effective Keywords
 ```
-✅ BAIK:
-cara membuat website
-tips digital marketing
-panduan SEO 2025
-review produk teknologi
+✅ GOOD:
+how to build responsive websites
+digital marketing automation tools
+SEO optimization techniques 2025
+mobile app development trends
 
-❌ HINDARI:
+❌ AVOID:
 website
 marketing
 SEO
-teknologi
+development
 ```
 
-### Best Practices
+### Optimization Tips
 
-1. **Start Small**
-   - Mulai dengan 1 artikel per hari
-   - Gunakan status "Draft" terlebih dahulu
-   - Review artikel sebelum publish
+1. **Start Conservative**
+   - Begin with 1 article per day
+   - Use "Draft" status initially
+   - Review generated content quality
 
-2. **Quality Keywords**
-   - Gunakan long-tail keywords
-   - Fokus pada topik spesifik
-   - Hindari keyword terlalu umum
+2. **Quality Over Quantity**
+   - Use specific, long-tail keywords
+   - Focus on niche topics
+   - Avoid overly broad subjects
 
-3. **Monitor Regularly**
-   - Cek logs secara berkala
-   - Review artikel yang dihasilkan
-   - Adjust settings berdasarkan hasil
+3. **Regular Monitoring**
+   - Check logs weekly
+   - Review article quality
+   - Adjust settings based on results
 
 ## 🔧 Troubleshooting
 
-### Masalah Umum
+### Common Issues
 
-#### 1. API Connection Failed
-```
-❌ Masalah: Test API gagal
-✅ Solusi:
-   - Periksa API key
-   - Pastikan koneksi internet stabil
-   - Cek quota API
-```
+#### ❌ API Connection Failed
+**Problem**: Test API connection fails  
+**Solutions**:
+- ✅ Verify API key is correct
+- ✅ Check internet connectivity
+- ✅ Verify API quota/billing
+- ✅ Try different AI provider
 
-#### 2. No Articles Generated
-```
-❌ Masalah: Tidak ada artikel dibuat
-✅ Solusi:
-   - Enable plugin
-   - Pastikan keywords ada
-   - Cek cron job WordPress
-```
+#### ❌ No Articles Generated
+**Problem**: Scheduled generation not working  
+**Solutions**:
+- ✅ Ensure plugin is enabled
+- ✅ Verify keywords are configured
+- ✅ Check WordPress cron functionality
+- ✅ Review activity logs for errors
 
-#### 3. Poor Article Quality
-```
-❌ Masalah: Kualitas artikel rendah
-✅ Solusi:
-   - Gunakan keywords yang lebih spesifik
-   - Coba provider AI yang berbeda
-   - Adjust article length
-```
+#### ❌ Enable/Disable Toggle Issues
+**Problem**: Settings not saving properly  
+**Solutions**:
+- ✅ Clear browser cache
+- ✅ Disable conflicting plugins temporarily
+- ✅ Check for JavaScript errors in browser console
+- ✅ Verify WordPress nonce functionality
+
+#### ❌ Scheduled Generation Failing
+**Problem**: "No available keywords" error  
+**Solutions**:
+- ✅ Add more keywords to the list
+- ✅ Reset keyword usage counters
+- ✅ Check keyword rotation settings
+- ✅ Monitor daily generation limits
+
+#### ❌ Infinite Recursion Issues
+**Problem**: Plugin generates duplicate content repeatedly  
+**Solutions**:
+- ✅ Plugin automatically prevents this with keyword rotation
+- ✅ Check logs for duplicate detection
+- ✅ Verify keyword usage tracking
+- ✅ Reset generation counters if needed
 
 ### Debug Mode
 
-Untuk debugging, tambahkan ke `wp-config.php`:
+Enable debugging in `wp-config.php`:
 ```php
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
 ```
 
-Log akan tersimpan di `/wp-content/debug.log`
+Debug logs will be saved to `/wp-content/debug.log`
 
-## 🔒 Keamanan
+## 🔒 Security
 
 ### API Key Protection
-- API keys disimpan terenkripsi di database
-- Tidak ada API key di frontend
-- Validasi NONCE untuk semua action
+- API keys stored encrypted in database
+- No API keys exposed in frontend
+- NONCE validation for all actions
+- Secure AJAX endpoints
 
 ### Content Safety
-- Sanitasi semua input user
-- Validasi API responses
-- Escape output data
+- Complete input sanitization
+- API response validation
+- Output escaping
+- SQL injection prevention
 
 ## 📈 Performance
 
-### Optimisasi
-- Gambar dioptimalkan otomatis
-- Caching untuk API responses
+### Optimization Features
+- Automatic image optimization
+- API response caching
 - Efficient database queries
-- Background processing untuk generation
+- Background processing for generation
+- Memory usage optimization
 
-### Monitoring
-- Track API usage
-- Monitor generation time
-- Database performance logs
+### Monitoring Capabilities
+- API usage tracking
+- Generation time monitoring
+- Database performance logging
+- Error rate analysis
+
+## 🛠️ Development
+
+### Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+### Testing
+```powershell
+# Run debugging scripts
+php tests/debug-enable-disable.php
+php tests/test-scheduled-keywords.php
+```
+
+### File Structure
+```
+auto-nulis/
+├── auto-nulis.php          # Main plugin file
+├── includes/               # Core classes
+├── admin/                  # Admin interface
+├── tests/                  # Debug & test scripts
+├── docs/                   # Documentation
+└── languages/              # Translation files
+```
+
+## 📚 Documentation
+
+- [Installation Guide](docs/INSTALL-PRODUCTION.md)
+- [Scheduling Guide](docs/SCHEDULING-GUIDE.md)
+- [Language Support](docs/LANGUAGE-GUIDE.md)
+- [Issue Resolution](docs/ISSUE-RESOLUTION-SUMMARY.md)
 
 ## 🆘 Support
 
-### Self-Help
-1. Cek logs di `Writing Agent > Logs`
-2. Review settings konfigurasi
+### Self-Help Resources
+1. Check logs at `Writing Agent > Logs`
+2. Review settings configuration
 3. Test API connection
-4. Periksa WordPress debug logs
+4. Check WordPress debug logs
+5. Review [troubleshooting documentation](docs/)
 
-### Documentation
-- README.md (file ini)
-- Inline code comments
-- WordPress Codex compatibility
+### Getting Help
+- Open an issue on GitHub
+- Check existing issues and discussions
+- Review documentation thoroughly before asking
 
 ### Backup Recommendations
-- Backup database sebelum instalasi
-- Backup site secara berkala
-- Export logs sebelum clear
+- Backup database before installation
+- Regular site backups
+- Export logs before clearing
 
-## 📄 Lisensi
+## 📝 Changelog
 
-GPL v2 atau yang lebih baru - sama dengan WordPress core.
+See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
-## 🔄 Updates
+## 📄 License
 
-Plugin mendukung auto-updates melalui WordPress admin. Pastikan backup site sebelum update major version.
+This project is licensed under the GPL v2 or later - same as WordPress core.
+
+See [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- WordPress community for the robust foundation
+- Google AI and OpenAI for powerful API access
+- Contributors and testers who helped improve the plugin
+- Open source community for inspiration and tools
 
 ---
 
-**Writing Agent v1.0.1** - Plugin WordPress untuk Pembuatan Artikel Otomatis dengan AI
+**Writing Agent v1.0.2** - Professional WordPress Plugin for AI-Powered Article Generation
 
-Dikembangkan dengan ❤️ untuk komunitas WordPress Indonesia
+Built with ❤️ for the WordPress community worldwide

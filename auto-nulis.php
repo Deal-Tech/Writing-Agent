@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Writing Agent
  * Plugin URI: https://github.com/Deal-Tech/Writing-Agent
- * Description: Plugin WordPress untuk pembuatan artikel otomatis menggunakan teknologi AI (Google Gemini & OpenAI) dengan fokus pada kualitas SEO dan konten yang human-like.
- * Version: 1.0.1
+ * Description: Professional WordPress plugin for automated AI-powered article generation using Google Gemini & OpenAI with SEO optimization and human-like content quality.
+ * Version: 1.0.2
  * Author: DealTech
  * Author URI: https://tech.mudahdeal.com
  * License: GPL v2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('AUTO_NULIS_VERSION', '1.0.1');
+define('AUTO_NULIS_VERSION', '1.0.2');
 define('AUTO_NULIS_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('AUTO_NULIS_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('AUTO_NULIS_PLUGIN_FILE', __FILE__);
@@ -37,8 +37,7 @@ class Auto_Nulis {
         
         // Initialize hooks only after dependencies are loaded
         $this->init_hooks();
-    }
-      /**
+    }    /**
      * Initialize hooks
      */
     private function init_hooks() {
@@ -52,9 +51,10 @@ class Auto_Nulis {
         // Ensure log table exists on admin pages
         add_action('admin_init', array($this, 'ensure_tables_exist'));
         
-        // Custom cron schedule for article generation
-        add_filter('cron_schedules', array($this, 'add_custom_cron_schedule'));
-        add_action('auto_nulis_generate_article', array($this, 'generate_scheduled_article'));
+        // Initialize scheduler
+        if (class_exists('Auto_Nulis_Scheduler')) {
+            $this->scheduler = new Auto_Nulis_Scheduler();
+        }
     }
     
     /**
@@ -62,8 +62,7 @@ class Auto_Nulis {
      */
     public function ensure_tables_exist() {
         self::ensure_log_table_exists();
-    }
-      /**
+    }    /**
      * Load plugin dependencies
      */
     private function load_dependencies() {
@@ -71,7 +70,8 @@ class Auto_Nulis {
             'includes/class-auto-nulis-admin.php',
             'includes/class-auto-nulis-api.php',
             'includes/class-auto-nulis-generator.php',
-            'includes/class-auto-nulis-image.php'
+            'includes/class-auto-nulis-image.php',
+            'includes/class-auto-nulis-scheduler.php'
         );
         
         foreach ($files as $file) {
@@ -115,20 +115,38 @@ class Auto_Nulis {
         // Schedule initial cron if enabled
         if (!wp_next_scheduled('auto_nulis_generate_article')) {
             wp_schedule_event(time(), 'auto_nulis_custom', 'auto_nulis_generate_article');
-        }
-          // Create log table
+        }        // Create log table
         $this->create_log_table();
         
         // Ensure log table exists
         self::ensure_log_table_exists();
+        
+        // Set up initial cron schedule
+        $this->setup_initial_cron();
     }
     
     /**
+     * Setup initial cron schedule
+     */
+    private function setup_initial_cron() {
+        // Don't schedule during activation, let settings update handle it
+        // This prevents conflicts with timezone calculations
+    }
+      /**
      * Plugin deactivation
      */
     public function deactivate() {
         // Clear scheduled events
         wp_clear_scheduled_hook('auto_nulis_generate_article');
+        
+        // Also clear any other potential hooks
+        wp_clear_scheduled_hook('auto_nulis_custom');
+        
+        // Log deactivation
+        if (class_exists('Auto_Nulis_Generator')) {
+            $generator = new Auto_Nulis_Generator();
+            $generator->log_message('info', 'Plugin deactivated - all scheduled events cleared');
+        }
     }
     
     /**
@@ -209,24 +227,52 @@ class Auto_Nulis {
             )
         ));
     }
-    
-    /**
+      /**
      * Add custom cron schedule
      */
     public function add_custom_cron_schedule($schedules) {
         $settings = get_option('auto_nulis_settings', array());
         $articles_per_day = isset($settings['articles_per_day']) ? intval($settings['articles_per_day']) : 1;
         
-        $interval = floor(24 * 60 * 60 / $articles_per_day); // Calculate interval based on articles per day
+        // Calculate interval based on articles per day
+        $interval = floor(24 * 60 * 60 / $articles_per_day);
+        
+        // Ensure minimum interval of 1 hour
+        $interval = max($interval, 3600);
         
         $schedules['auto_nulis_custom'] = array(
             'interval' => $interval,
-            'display' => sprintf(__('Every %d hours', 'auto-nulis'), floor($interval / 3600))
+            'display' => sprintf(__('Every %s for Auto Nulis', 'auto-nulis'), $this->format_interval($interval))
         );
         
         return $schedules;
     }
-      /**
+    
+    /**
+     * Format interval for display
+     */
+    private function format_interval($seconds) {
+        $hours = floor($seconds / 3600);
+        $minutes = floor(($seconds % 3600) / 60);
+        
+        if ($hours >= 24) {
+            $days = floor($hours / 24);
+            $remaining_hours = $hours % 24;
+            if ($remaining_hours > 0) {
+                return sprintf(__('%d days %d hours', 'auto-nulis'), $days, $remaining_hours);
+            } else {
+                return sprintf(__('%d days', 'auto-nulis'), $days);
+            }
+        } elseif ($hours > 0) {
+            if ($minutes > 0) {
+                return sprintf(__('%d hours %d minutes', 'auto-nulis'), $hours, $minutes);
+            } else {
+                return sprintf(__('%d hours', 'auto-nulis'), $hours);
+            }
+        } else {
+            return sprintf(__('%d minutes', 'auto-nulis'), $minutes);
+        }
+    }    /**
      * Generate scheduled article
      */
     public function generate_scheduled_article() {
@@ -236,10 +282,66 @@ class Auto_Nulis {
             return;
         }
         
+        // Check daily limit
+        $today_count = $this->get_today_generated_count();
+        $daily_limit = isset($settings['articles_per_day']) ? intval($settings['articles_per_day']) : 1;
+        
+        if ($today_count >= $daily_limit) {
+            return; // Daily limit reached
+        }
+        
         if (class_exists('Auto_Nulis_Generator')) {
             $generator = new Auto_Nulis_Generator();
-            $generator->generate_article();
+            
+            // Log the scheduled generation attempt
+            $wp_timezone = wp_timezone();
+            $current_time = new DateTime('now', $wp_timezone);
+            
+            $generator->log_message('info', 'Scheduled article generation started', array(
+                'current_time' => $current_time->format('Y-m-d H:i:s T'),
+                'timezone' => $wp_timezone->getName(),
+                'today_count' => $today_count,
+                'daily_limit' => $daily_limit
+            ));
+            
+            $result = $generator->generate_article();
+            
+            // Log the result
+            if ($result['success']) {
+                $generator->log_message('success', 'Scheduled article generation completed successfully', array(
+                    'post_id' => $result['post_id'],
+                    'keyword' => $result['keyword']
+                ));
+            } else {
+                $generator->log_message('error', 'Scheduled article generation failed', array(
+                    'error' => $result['message']
+                ));
+            }
         }
+    }
+    
+    /**
+     * Get count of articles generated today
+     */
+    private function get_today_generated_count() {
+        global $wpdb;
+        
+        // Get WordPress timezone
+        $wp_timezone = wp_timezone();
+        $today_start = new DateTime('today', $wp_timezone);
+        $today_start_utc = $today_start->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        
+        $count = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->postmeta} pm
+                JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+                WHERE pm.meta_key = '_auto_nulis_generated'
+                AND p.post_date >= %s",
+                $today_start_utc
+            )
+        );
+        
+        return intval($count);
     }
       /**
      * Admin page callback
@@ -537,6 +639,12 @@ function auto_nulis_auto_save_setting() {
     
     $field = sanitize_text_field($_POST['field']);
     $value = sanitize_textarea_field($_POST['value']);
+    
+    // Don't allow auto-save for critical settings like 'enabled'
+    if ($field === 'enabled') {
+        wp_send_json_error(array('message' => __('Enabled setting can only be changed via form submission', 'auto-nulis')));
+        return;
+    }
     
     $settings = get_option('auto_nulis_settings', array());
     $settings[$field] = $value;

@@ -36,9 +36,7 @@ class Auto_Nulis_Admin {
         $settings = get_option('auto_nulis_settings', array());
         
         include AUTO_NULIS_PLUGIN_PATH . 'admin/settings-page.php';
-    }
-    
-    /**
+    }    /**
      * Save settings
      */
     private function save_settings() {
@@ -46,9 +44,30 @@ class Auto_Nulis_Admin {
             return;
         }
         
-        check_admin_referer('auto_nulis_settings_nonce');
-          $settings = array(
-            'enabled' => isset($_POST['enabled']) ? true : false,
+        check_admin_referer('auto_nulis_settings_nonce');        // Debug: Log what we received in POST
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Auto Nulis Settings POST data: ' . print_r($_POST, true));
+            error_log('Auto Nulis enabled checkbox: ' . (isset($_POST['enabled']) ? 'SET' : 'NOT SET'));
+            error_log('Auto Nulis enabled value: ' . (isset($_POST['enabled']) ? $_POST['enabled'] : 'none'));
+            
+            // Check if we received multiple values for enabled (hidden + checkbox)
+            if (isset($_POST['enabled']) && is_array($_POST['enabled'])) {
+                error_log('Auto Nulis enabled is array: ' . print_r($_POST['enabled'], true));
+            }
+        }
+        
+        // Handle checkbox properly - if it's an array, take the last value (checkbox overrides hidden)
+        $enabled_value = false;
+        if (isset($_POST['enabled'])) {
+            if (is_array($_POST['enabled'])) {
+                $enabled_value = end($_POST['enabled']) === '1';
+            } else {
+                $enabled_value = $_POST['enabled'] === '1';
+            }
+        }
+        
+        $settings = array(
+            'enabled' => $enabled_value,
             'articles_per_day' => intval($_POST['articles_per_day']),
             'schedule_time' => sanitize_text_field($_POST['schedule_time']),
             'keywords' => sanitize_textarea_field($_POST['keywords']),
@@ -64,22 +83,42 @@ class Auto_Nulis_Admin {
             'article_language' => sanitize_text_field($_POST['article_language'])
         );
         
+        // Debug: Log what we're about to save
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Auto Nulis Settings before validation: ' . print_r($settings, true));
+        }
+        
         $validated_settings = $this->validate_settings($settings);
-        update_option('auto_nulis_settings', $validated_settings);
+        
+        // Debug: Log validated settings
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Auto Nulis Settings after validation: ' . print_r($validated_settings, true));
+        }
+        
+        $update_result = update_option('auto_nulis_settings', $validated_settings);
+        
+        // Debug: Log update result
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Auto Nulis Settings update result: ' . ($update_result ? 'SUCCESS' : 'FAILED'));
+            
+            // Verify what was actually saved
+            $saved_settings = get_option('auto_nulis_settings', array());
+            error_log('Auto Nulis Settings actually saved: ' . print_r($saved_settings, true));
+        }
         
         // Update cron schedule if settings changed
         $this->update_cron_schedule($validated_settings);
         
         add_settings_error('auto_nulis_settings', 'settings_updated', __('Settings saved successfully!', 'auto-nulis'), 'updated');
     }
-    
-    /**
+      /**
      * Validate settings
      */
     public function validate_settings($input) {
         $validated = array();
         
-        $validated['enabled'] = isset($input['enabled']) ? true : false;
+        // Preserve the enabled value exactly as processed in save_settings
+        $validated['enabled'] = isset($input['enabled']) ? $input['enabled'] : false;
         $validated['articles_per_day'] = max(1, min(10, intval($input['articles_per_day'])));
         $validated['schedule_time'] = sanitize_text_field($input['schedule_time']);
         $validated['keywords'] = sanitize_textarea_field($input['keywords']);
@@ -96,25 +135,43 @@ class Auto_Nulis_Admin {
         $valid_languages = array_keys($this->get_language_options());
         $validated['article_language'] = in_array($input['article_language'], $valid_languages) ? $input['article_language'] : 'id';
         
+        // Debug: Log validation input and output
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Auto Nulis Validation - Input enabled: ' . var_export($input['enabled'], true));
+            error_log('Auto Nulis Validation - Validated enabled: ' . var_export($validated['enabled'], true));
+        }
+        
         return $validated;
-    }
-    
-    /**
+    }    /**
      * Update cron schedule
      */
     private function update_cron_schedule($settings) {
-        // Clear existing schedule
-        wp_clear_scheduled_hook('auto_nulis_generate_article');
-        
-        // Schedule new event if enabled
-        if ($settings['enabled']) {
-            // Calculate next run time based on schedule_time
-            $next_run = strtotime('today ' . $settings['schedule_time']);
-            if ($next_run <= time()) {
-                $next_run = strtotime('tomorrow ' . $settings['schedule_time']);
-            }
+        // Use the scheduler class if available
+        if (class_exists('Auto_Nulis_Scheduler')) {
+            $scheduler = new Auto_Nulis_Scheduler();
+            $scheduler->schedule_generation($settings);
+        } else {
+            // Fallback to old method
+            wp_clear_scheduled_hook('auto_nulis_generate_article');
             
-            wp_schedule_event($next_run, 'auto_nulis_custom', 'auto_nulis_generate_article');
+            if ($settings['enabled']) {
+                $wp_timezone = wp_timezone();
+                $current_time = new DateTime('now', $wp_timezone);
+                
+                $schedule_time_parts = explode(':', $settings['schedule_time']);
+                $schedule_hour = intval($schedule_time_parts[0]);
+                $schedule_minute = intval($schedule_time_parts[1]);
+                
+                $next_run_time = new DateTime('today', $wp_timezone);
+                $next_run_time->setTime($schedule_hour, $schedule_minute, 0);
+                
+                if ($next_run_time <= $current_time) {
+                    $next_run_time->add(new DateInterval('P1D'));
+                }
+                
+                $next_run_utc = $next_run_time->getTimestamp();
+                wp_schedule_event($next_run_utc, 'auto_nulis_custom', 'auto_nulis_generate_article');
+            }
         }
     }
     

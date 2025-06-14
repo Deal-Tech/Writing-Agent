@@ -91,51 +91,124 @@
     font-size: 13px;
 }
 
+/* Enable/Disable Toggle Visual Feedback */
+.auto-nulis-field.enabled {
+    border-left: 4px solid #00a32a;
+    padding-left: 16px;
+    background: #f0f9ff;
+}
+
+.auto-nulis-field.enabled .auto-nulis-toggle-slider {
+    background: #00a32a;
+}
+
+.auto-nulis-field.enabled .description {
+    color: #135e96;
+    font-weight: 500;
+}
+
+/* Toggle switch improvements */
+
 /* Toggle Switch */
 .auto-nulis-toggle {
-    position: relative;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 500;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.auto-nulis-toggle.active {
+    opacity: 1;
 }
 
 .auto-nulis-toggle input[type="checkbox"] {
-    position: absolute;
     opacity: 0;
+    position: absolute;
     width: 0;
     height: 0;
 }
 
 .auto-nulis-toggle-slider {
+    width: 54px;
+    height: 28px;
+    background: #ddd;
+    border-radius: 14px;
     position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 26px;
-    background-color: #ccc;
-    border-radius: 26px;
+    transition: all 0.3s ease;
     margin-right: 12px;
-    transition: background-color 0.3s;
+    border: 2px solid #ddd;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 
 .auto-nulis-toggle-slider:before {
-    content: "";
+    content: '';
     position: absolute;
-    height: 20px;
     width: 20px;
-    left: 3px;
-    top: 3px;
-    background-color: white;
+    height: 20px;
     border-radius: 50%;
-    transition: transform 0.3s;
+    background: white;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.auto-nulis-toggle input:checked + .auto-nulis-toggle-slider {
-    background-color: #2271b1;
+.auto-nulis-toggle input[type="checkbox"]:checked + .auto-nulis-toggle-slider {
+    background: #00a32a;
+    border-color: #00a32a;
 }
 
-.auto-nulis-toggle input:checked + .auto-nulis-toggle-slider:before {
-    transform: translateX(24px);
+.auto-nulis-toggle input[type="checkbox"]:checked + .auto-nulis-toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.auto-nulis-toggle:hover .auto-nulis-toggle-slider {
+    border-color: #999;
+    transform: scale(1.02);
+}
+
+.auto-nulis-toggle input[type="checkbox"]:checked:hover + .auto-nulis-toggle-slider {
+    background: #008a00;
+    border-color: #008a00;
+}
+
+/* Toggle label styling */
+.auto-nulis-toggle {
+    user-select: none;
+    gap: 8px;
+}
+
+.auto-nulis-toggle span:not(.auto-nulis-toggle-slider) {
+    color: #1d2327;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+/* Enabled state styling */
+.auto-nulis-field.enabled .auto-nulis-toggle span:not(.auto-nulis-toggle-slider) {
+    color: #00a32a;
+    font-weight: 600;
+}
+
+/* Focus states for accessibility */
+.auto-nulis-toggle input[type="checkbox"]:focus + .auto-nulis-toggle-slider {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
+}
+
+/* Disabled state */
+.auto-nulis-field.disabled .auto-nulis-toggle {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.auto-nulis-field.disabled .auto-nulis-toggle-slider {
+    background: #f0f0f0;
+    border-color: #ddd;
 }
 
 /* Checkbox */
@@ -352,7 +425,7 @@
 
 .auto-nulis-notice.warning {
     background: #fff3cd;
-    border-left-color: #ff9800;
+    border-left-color: #ffc107;
     color: #856404;
 }
 
@@ -549,4 +622,61 @@
 .status-actions {
     margin-top: 10px;
     text-align: center;
+}
+
+/* Scheduling Status */
+.auto-nulis-schedule-status {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    border-left: 4px solid #007cba;
+}
+
+.auto-nulis-schedule-status p {
+    margin: 5px 0;
+}
+
+.status-enabled {
+    color: #007017;
+    font-weight: 600;
+}
+
+.status-disabled {
+    color: #d63638;
+    font-weight: 600;
+}
+
+.status-error {
+    color: #d63638;
+    font-weight: 500;
+}
+
+/* Form changed indicator */
+.form-changed .auto-nulis-actions {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+.form-changed .auto-nulis-actions:before {
+    content: "⚠️ Settings have been changed. Click 'Save Settings' to apply changes.";
+    display: block;
+    color: #856404;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+/* Enhanced save button when form is changed */
+.form-changed .button-primary {
+    background: #007cba;
+    border-color: #005a87;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 124, 186, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 124, 186, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 124, 186, 0); }
 }

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WordPress Style Toggle Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        margin: 40px;
+        background: #f1f1f1;
+    }
+    
+    .wrap {
+        background: #fff;
+        padding: 20px;
+        border-radius: 3px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.13);
+        max-width: 600px;
+    }    /* WordPress-style toggle switch */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+    }
+
+    .toggle-switch-checkbox {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    .toggle-switch-slider {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 18px;
+        background-color: #8c8f94;
+        border-radius: 9px;
+        transition: background-color 0.2s ease-in-out;
+        vertical-align: middle;
+        cursor: pointer;
+    }
+
+    .toggle-switch-slider:before {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 14px;
+        height: 14px;
+        background-color: #fff;
+        border-radius: 50%;
+        transition: transform 0.2s ease-in-out;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    .toggle-switch-checkbox:checked + .toggle-switch-slider {
+        background-color: #00a32a;
+    }
+
+    .toggle-switch-checkbox:checked + .toggle-switch-slider:before {
+        transform: translateX(18px);
+    }
+
+    .toggle-switch-checkbox:focus + .toggle-switch-slider {
+        box-shadow: 0 0 0 2px #2271b1;
+        outline: 2px solid transparent;
+    }
+
+    .toggle-switch-slider:hover {
+        background-color: #646970;
+    }
+
+    .toggle-switch-checkbox:checked + .toggle-switch-slider:hover {
+        background-color: #008a00;
+    }
+
+    .toggle-switch-label {
+        font-weight: 600;
+        color: #1d2327;
+        user-select: none;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .status {
+        margin: 20px 0;
+        padding: 12px;
+        border-radius: 4px;
+        font-weight: 600;
+        border-left: 4px solid;
+    }
+    .status.enabled { 
+        background: #d1e7dd; 
+        color: #0f5132; 
+        border-color: #00a32a;
+    }
+    .status.disabled { 
+        background: #f8d7da; 
+        color: #842029; 
+        border-color: #dc3545;
+    }
+    
+    .description {
+        color: #646970;
+        font-size: 13px;
+        margin: 5px 0 0 48px;
+    }
+    </style>
+</head>
+<body>    <div class="wrap">
+        <h1>WordPress Style Toggle Test - Fixed Layout</h1>
+        <p>Status di atas, toggle di sebelah kiri dengan label.</p>
+        
+        <div style="display: flex; flex-direction: column; align-items: flex-start; max-width: 400px;">
+            <div id="plugin-status-indicator" style="margin-bottom: 8px; font-weight: 600; font-size: 14px;">
+                <span style="color: #d63638;">○ Inactive</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <label class="toggle-switch" style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                    <input type="hidden" name="enabled" value="0">
+                    <input type="checkbox" name="enabled" value="1" id="enabled" class="toggle-switch-checkbox">
+                    <span class="toggle-switch-slider"></span>
+                </label>
+                <span class="toggle-switch-label" style="font-weight: 600; color: #1d2327; margin: 0;">Enable Auto Article Generation</span>
+            </div>
+        </div>
+        <p class="description">Toggle this to enable or disable automatic article generation.</p>
+
+        <div id="status" class="status disabled">Status: DISABLED</div>
+        
+        <h3>Features:</h3>
+        <ul>
+            <li>✅ WordPress native design language</li>
+            <li>✅ Consistent with WP admin interface</li>
+            <li>✅ Smooth animations</li>
+            <li>✅ Proper focus states for accessibility</li>
+            <li>✅ Hover effects</li>
+            <li>✅ Click anywhere on toggle area</li>
+        </ul>
+    </div>    <script>
+    jQuery(document).ready(function($) {
+        function updateStatus(isEnabled) {
+            var $status = $('#status');
+            if (isEnabled) {
+                $status.removeClass('disabled').addClass('enabled').text('Status: ENABLED');
+            } else {
+                $status.removeClass('enabled').addClass('disabled').text('Status: DISABLED');
+            }
+        }
+        
+        // Update status indicator
+        function updateStatusIndicator(isEnabled) {
+            var $indicator = $('#plugin-status-indicator');
+            if (isEnabled) {
+                $indicator.html('<span style="color: #00a32a;">● Active</span>');
+            } else {
+                $indicator.html('<span style="color: #d63638;">○ Inactive</span>');
+            }
+        }        // Handle direct checkbox clicks
+        $('.toggle-switch-checkbox').on('change', function() {
+            var $checkbox = $(this);
+            var isEnabled = $checkbox.is(':checked');
+            
+            console.log('Toggle changed:', isEnabled);
+            
+            // Update hidden field
+            $('input[name="enabled"][type="hidden"]').val(isEnabled ? '1' : '0');
+            
+            // Visual feedback
+            var $label = $('.toggle-switch-label');
+            if (isEnabled) {
+                $label.css('color', '#00a32a');
+            } else {
+                $label.css('color', '#1d2327');
+            }
+            
+            updateStatus(isEnabled);
+            updateStatusIndicator(isEnabled);
+        });
+        
+        // Handle clicks on toggle area (slider)
+        $('.toggle-switch-slider').on('click', function(e) {
+            e.preventDefault();
+            var $checkbox = $(this).siblings('.toggle-switch-checkbox');
+            $checkbox.prop('checked', !$checkbox.is(':checked')).trigger('change');
+        });
+        
+        // Handle clicks on label
+        $('.toggle-switch-label').on('click', function(e) {
+            e.preventDefault();
+            var $checkbox = $('#enabled');
+            $checkbox.prop('checked', !$checkbox.is(':checked')).trigger('change');
+        });
+        
+        // Initialize
+        var $toggle = $('.toggle-switch-checkbox');
+        if ($toggle.length > 0) {
+            var isEnabled = $toggle.is(':checked');
+            updateStatus(isEnabled);
+            updateStatusIndicator(isEnabled);
+            
+            var $label = $toggle.siblings('.toggle-switch-label');
+            if (isEnabled) {
+                $label.css('color', '#00a32a');
+            }
+        }
+    });
+    </script>
+</body>
+</html>
