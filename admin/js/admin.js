@@ -31,6 +31,10 @@ var AutoNulisAdmin = {
         // Test API connection
         $(document).on('click', '#test-api-connection', this.testApiConnection);
         
+        // Test image API connections
+        $(document).on('click', '#test-unsplash-api', this.testUnsplashApi);
+        $(document).on('click', '#test-pexels-api', this.testPexelsApi);
+        
         // Generate article now
         $(document).on('click', '#generate-now', this.generateArticleNow);
         
@@ -38,7 +42,10 @@ var AutoNulisAdmin = {
         $(document).on('change', '#ai_provider', this.onProviderChange);
         
         // Include images toggle
-        $(document).on('change', 'input[name="include_images"]', this.toggleImageSource);        // Form validation (only for settings form)
+        $(document).on('change', 'input[name="include_images"]', this.toggleImageSource);
+        
+        // Image source change
+        $(document).on('change', '#image_source', this.toggleImageApiFields);        // Form validation (only for settings form)
         $(document).on('submit', '.auto-nulis-admin form', this.validateForm);
         
         // Real-time validation for articles per day (only on settings page)
@@ -310,311 +317,175 @@ var AutoNulisAdmin = {
     toggleImageSource: function() {
         var includeImages = $('input[name="include_images"]').is(':checked');
         $('.image-source-field').toggle(includeImages);
-    },    /**
-     * Validate form before submission
-     */
-    validateForm: function(e) {
-        var $form = $(e.target);
+        $('.image-api-field').toggle(includeImages);
         
-        // Only validate settings form, not other forms like log filters
-        if (!$form.find('#articles_per_day').length) {
-            return true; // Skip validation for non-settings forms (like logs filter)
-        }
-        
-        var isValid = true;
-        var errors = [];
-        
-        // Only validate required fields for warnings, but allow form submission
-        // This allows users to enable the plugin and configure it step by step
-        var warnings = [];
-        
-        if ($('input[name="enabled"]').is(':checked')) {
-            if (!$('#api_key').val().trim()) {
-                warnings.push('API key should be configured for article generation to work.');
-            }
-            
-            if (!$('#keywords').val().trim()) {
-                warnings.push('Keywords should be added for article generation to work.');
-            }
-        }
-        
-        // Validate articles per day field only if it exists
-        var $articlesField = $('#articles_per_day');
-        if ($articlesField.length > 0) {
-            var articlesPerDay = parseInt($articlesField.val());
-            if (isNaN(articlesPerDay) || articlesPerDay < 1 || articlesPerDay > 10) {
-                errors.push('Articles per day must be between 1 and 10.');
-                AutoNulisAdmin.markFieldError('#articles_per_day');
-                isValid = false;
-            } else {
-                // Remove error state if value is valid
-                $articlesField.closest('.auto-nulis-field').removeClass('has-error');
-                $articlesField.closest('.auto-nulis-field').find('.field-error').remove();
-            }
-        }
-        
-        // Show warnings but don't prevent form submission
-        if (warnings.length > 0) {
-            AutoNulisAdmin.showNotice('warning', 'Configuration recommendations:<br>' + warnings.join('<br>'));
-        }
-        
-        // Only prevent submission for critical errors
-        if (!isValid) {
-            e.preventDefault();
-            AutoNulisAdmin.showNotice('error', 'Please fix the following errors:<br>' + errors.join('<br>'));
-        }
-        
-        return isValid;
+        // Also trigger the API fields toggle
+        AutoNulisAdmin.toggleImageApiFields();
     },
     
     /**
-     * Mark field as having error
+     * Toggle image API fields based on source selection
      */
-    markFieldError: function(selector) {
-        $(selector).closest('.auto-nulis-field').addClass('has-error');
-          // Remove error state on focus
-        $(selector).one('focus', function() {
-            $(this).closest('.auto-nulis-field').removeClass('has-error');
-        });
-    },
-
-    /**
-     * Auto-save functionality
-     */
-    autoSave: function() {
-        var $field = $(this);
-        var fieldName = $field.attr('name');
-        var fieldValue = $field.val();
+    toggleImageApiFields: function() {
+        var includeImages = $('input[name="include_images"]').is(':checked');
+        var imageSource = $('#image_source').val();
         
-        // Skip auto-save for certain fields that should only be saved via form submission
-        if ($field.data('no-auto-save') || fieldName === 'enabled' || $field.attr('type') === 'checkbox') {
+        // Hide all API fields first
+        $('.unsplash-api-field, .pexels-api-field').hide();
+        
+        // Show appropriate API field only if images are enabled
+        if (includeImages && imageSource !== 'media_library') {
+            $('.image-api-field').show();
+            
+            if (imageSource === 'unsplash') {
+                $('.unsplash-api-field').show();
+            } else if (imageSource === 'pexels') {
+                $('.pexels-api-field').show();
+            }
+        } else {
+            $('.image-api-field').hide();
+        }
+    },
+    
+    /**
+     * Test Unsplash API connection
+     */
+    testUnsplashApi: function(e) {
+        e.preventDefault();
+        
+        var $button = $(this);
+        var $result = $('#unsplash-api-test-result');
+        var $apiKeyField = $('#unsplash_api_key');
+        
+        var apiKey = $apiKeyField.val();
+        
+        if (!apiKey || !apiKey.trim()) {
+            AutoNulisAdmin.showImageApiResult($result, 'error', 'Unsplash API key is required');
             return;
         }
         
-        // Show saving indicator
-        AutoNulisAdmin.showSavingIndicator($field);
-        
-        // Debounce the save
-        clearTimeout($field.data('autoSaveTimeout'));
-        $field.data('autoSaveTimeout', setTimeout(function() {
-            AutoNulisAdmin.performAutoSave(fieldName, fieldValue);
-        }, 1000));
-    },
-    
-    /**
-     * Show saving indicator
-     */
-    showSavingIndicator: function($field) {
-        var $indicator = $field.siblings('.auto-save-indicator');
-        if ($indicator.length === 0) {
-            $indicator = $('<span class="auto-save-indicator">Saving...</span>');
-            $field.after($indicator);
-        }
-        $indicator.show();
-    },
-    
-    /**
-     * Perform auto-save
-     */
-    performAutoSave: function(fieldName, fieldValue) {
-        $.ajax({
-            url: autoNulisAjax.ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'auto_nulis_auto_save',
-                field: fieldName,
-                value: fieldValue,
-                nonce: autoNulisAjax.nonce
-            },
-            success: function(response) {
-                $('.auto-save-indicator').hide();
-                if (response.success) {
-                    AutoNulisAdmin.showTempMessage('Saved', 'success');
-                }
-            },
-            error: function() {
-                $('.auto-save-indicator').hide();
-                AutoNulisAdmin.showTempMessage('Save failed', 'error');
-            }
-        });
-    },
-    
-    /**
-     * Show temporary message
-     */
-    showTempMessage: function(message, type) {
-        var $message = $('<div class="auto-nulis-temp-message ' + type + '">' + message + '</div>');
-        $('body').append($message);
-        
-        setTimeout(function() {
-            $message.fadeOut(function() {
-                $(this).remove();
-            });
-        }, 2000);
-    },
-    
-    /**
-     * Show admin notice
-     */
-    showNotice: function(type, message) {
-        var $notice = $('<div class="auto-nulis-notice ' + type + '">' + message + '</div>');
-        $('.auto-nulis-admin h1').after($notice);
-        
-        // Auto-hide success notices
-        if (type === 'success') {
-            setTimeout(function() {
-                $notice.fadeOut();
-            }, 5000);
-        }
-        
-        // Scroll to notice
-        $('html, body').animate({
-            scrollTop: $notice.offset().top - 100
-        }, 500);
-    },
-      /**
-     * Initialize progress tracking
-     */
-    initProgressTracking: function() {
-        // Only initialize if we have the necessary AJAX data
-        if (typeof autoNulisAjax === 'undefined') {
-            return; // Exit if AJAX object not available
-        }
-        
-        // Update progress bars based on current stats
-        this.updateProgressBars();
-        
-        // Set up periodic updates
-        setInterval(this.updateProgressBars, 30000); // Every 30 seconds
-    },
-    
-    /**
-     * Update progress bars
-     */
-    updateProgressBars: function() {
         // Check if AJAX object is available
         if (typeof autoNulisAjax === 'undefined') {
+            AutoNulisAdmin.showImageApiResult($result, 'error', 'AJAX configuration not available');
             return;
         }
         
+        // Show loading state
+        $button.prop('disabled', true);
+        $result.removeClass('success error').addClass('loading').show();
+        $result.html('<span class="auto-nulis-loading"></span>Testing Unsplash API...');
+        
+        // Make AJAX request
         $.ajax({
             url: autoNulisAjax.ajaxurl,
             type: 'POST',
             data: {
-                action: 'auto_nulis_get_stats',
+                action: 'auto_nulis_test_unsplash_api',
+                api_key: apiKey,
                 nonce: autoNulisAjax.nonce
             },
             success: function(response) {
                 if (response.success) {
-                    AutoNulisAdmin.updateStatsDisplay(response.data);
+                    var message = response.data.message;
+                    if (response.data.data && response.data.data.rate_limit) {
+                        message += ' (Rate limit remaining: ' + response.data.data.rate_limit + ')';
+                    }
+                    AutoNulisAdmin.showImageApiResult($result, 'success', message);
+                } else {
+                    AutoNulisAdmin.showImageApiResult($result, 'error', response.data.message || 'Connection failed');
                 }
             },
-            error: function() {
-                // Silently fail if AJAX request fails
+            error: function(xhr, status, error) {
+                AutoNulisAdmin.showImageApiResult($result, 'error', 'Connection failed: ' + error);
+            },
+            complete: function() {
+                $button.prop('disabled', false);
             }
         });
     },
     
     /**
-     * Update stats display
+     * Test Pexels API connection
      */
-    updateStatsDisplay: function(stats) {
-        $('.stat-item').each(function() {
-            var $item = $(this);
-            var statType = $item.data('stat-type');
-            
-            if (stats[statType] !== undefined) {
-                $item.find('.stat-number').text(stats[statType]);
+    testPexelsApi: function(e) {
+        e.preventDefault();
+        
+        var $button = $(this);
+        var $result = $('#pexels-api-test-result');
+        var $apiKeyField = $('#pexels_api_key');
+        
+        var apiKey = $apiKeyField.val();
+        
+        if (!apiKey || !apiKey.trim()) {
+            AutoNulisAdmin.showImageApiResult($result, 'error', 'Pexels API key is required');
+            return;
+        }
+        
+        // Check if AJAX object is available
+        if (typeof autoNulisAjax === 'undefined') {
+            AutoNulisAdmin.showImageApiResult($result, 'error', 'AJAX configuration not available');
+            return;
+        }
+        
+        // Show loading state
+        $button.prop('disabled', true);
+        $result.removeClass('success error').addClass('loading').show();
+        $result.html('<span class="auto-nulis-loading"></span>Testing Pexels API...');
+        
+        // Make AJAX request
+        $.ajax({
+            url: autoNulisAjax.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'auto_nulis_test_pexels_api',
+                api_key: apiKey,
+                nonce: autoNulisAjax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    var message = response.data.message;
+                    if (response.data.data && response.data.data.rate_limit) {
+                        message += ' (Rate limit remaining: ' + response.data.data.rate_limit + ')';
+                    }
+                    AutoNulisAdmin.showImageApiResult($result, 'success', message);
+                } else {
+                    AutoNulisAdmin.showImageApiResult($result, 'error', response.data.message || 'Connection failed');
+                }
+            },
+            error: function(xhr, status, error) {
+                AutoNulisAdmin.showImageApiResult($result, 'error', 'Connection failed: ' + error);
+            },
+            complete: function() {
+                $button.prop('disabled', false);
             }
         });
     },
-      /**
-     * Initialize keyword management
+    
+    /**
+     * Show image API test result
      */
-    initKeywordManagement: function() {
-        // Only initialize if keywords field exists (on settings page)
-        if ($('#keywords').length > 0) {
-            // Add keyword counter
-            this.updateKeywordCounter();
-            $('#keywords').on('input', this.updateKeywordCounter);
-            
-            // Add keyword validation
-            $('#keywords').on('blur', this.validateKeywords);
+    showImageApiResult: function($result, type, message) {
+        $result.removeClass('loading success error').addClass(type).html(message).show();
+        
+        // Auto-hide after 5 seconds for success messages
+        if (type === 'success') {
+            setTimeout(function() {
+                $result.fadeOut();
+            }, 5000);
         }
     },
     
     /**
-     * Update keyword counter
-     */
-    updateKeywordCounter: function() {
-        var $keywordsField = $('#keywords');
-        if ($keywordsField.length === 0) {
-            return; // Exit if keywords field doesn't exist
-        }
-        
-        var keywords = $keywordsField.val();
-        if (typeof keywords !== 'string') {
-            keywords = '';
-        }
-        
-        var trimmedKeywords = keywords.trim();
-        var count = trimmedKeywords ? trimmedKeywords.split('\n').filter(function(k) { return k.trim(); }).length : 0;
-        
-        var $counter = $('#keyword-counter');
-        if ($counter.length === 0) {
-            $counter = $('<div id="keyword-counter" class="description"></div>');
-            $('#keywords').after($counter);
-        }
-        
-        $counter.text(count + ' keywords entered');
-    },
-      /**
-     * Validate keywords
-     */
-    validateKeywords: function() {
-        var $field = $(this);
-        var keywords = $field.val();
-        
-        if (typeof keywords !== 'string') {
-            return; // Exit if no valid keywords
-        }
-        
-        var trimmedKeywords = keywords.trim();
-        if (!trimmedKeywords) {
-            return; // Exit if empty
-        }
-        
-        var lines = trimmedKeywords.split('\n');
-        var duplicates = [];
-        var seen = {};
-        
-        lines.forEach(function(line, index) {
-            var keyword = line.trim().toLowerCase();
-            if (keyword && seen[keyword]) {
-                duplicates.push(keyword);
-            }
-            seen[keyword] = true;
-        });
-        
-        if (duplicates.length > 0) {
-            AutoNulisAdmin.showNotice('warning', 'Duplicate keywords found: ' + duplicates.join(', '));
-        }
-    },
-    
-    /**
-     * Create database tables
+     * Create tables
      */
     createTables: function(e) {
         e.preventDefault();
         
         var $button = $(this);
-        
-        if (!confirm('Are you sure you want to create the database tables?')) {
-            return;
-        }
+        var originalText = $button.text();
         
         // Show loading state
-        $button.prop('disabled', true).text('Creating...');
+        $button.prop('disabled', true).text('Creating tables...');
         
         // Make AJAX request
         $.ajax({
@@ -626,109 +497,102 @@ var AutoNulisAdmin = {
             },
             success: function(response) {
                 if (response.success) {
-                    AutoNulisAdmin.showNotice('success', 'Database tables created successfully!');
-                    // Reload page to update status
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1500);
+                    AutoNulisAdmin.showNotice('success', 'Tables created successfully!');
                 } else {
                     AutoNulisAdmin.showNotice('error', 'Failed to create tables: ' + response.message);
                 }
             },
             error: function(xhr, status, error) {
-                AutoNulisAdmin.showNotice('error', 'Connection error: ' + error);
+                AutoNulisAdmin.showNotice('error', 'Table creation failed: ' + error);
             },
             complete: function() {
-                $button.prop('disabled', false).text('Create Tables');
+                $button.prop('disabled', false).text(originalText);
             }
         });
     },
     
     /**
-     * Debug form state and validation
-     */    debugForm: function(e) {
+     * Debug form
+     */
+    debugForm: function(e) {
         e.preventDefault();
         
-        console.log('=== Auto Nulis Form Debug ===');
+        var $button = $(this);
+        var originalText = $button.text();
         
-        var $enabledCheckbox = $('input[name="enabled"][type="checkbox"]');
-        var $enabledHidden = $('input[name="enabled"][type="hidden"]');
+        // Show loading state
+        $button.prop('disabled', true).text('Debugging...');
         
-        var formData = {
-            enabled_checkbox: $enabledCheckbox.is(':checked'),
-            enabled_hidden_value: $enabledHidden.val(),
-            api_key: $('#api_key').val(),
-            keywords: $('#keywords').val(),
-            articles_per_day: $('#articles_per_day').val()
-        };
-        
-        console.log('Form Data:', formData);
-        console.log('Enabled checkbox element:', $enabledCheckbox[0]);
-        console.log('Enabled hidden element:', $enabledHidden[0]);
-        
-        // Determine final enabled value (same logic as form submission)
-        var finalEnabledValue = $enabledCheckbox.is(':checked');
-        
-        var debugInfo = 'Form Debug Information:\n\n' +
-                       'Plugin Enabled (Checkbox): ' + (formData.enabled_checkbox ? 'YES' : 'NO') + '\n' +
-                       'Hidden Field Value: ' + formData.enabled_hidden_value + '\n' +
-                       'Final Enabled Value: ' + (finalEnabledValue ? 'YES' : 'NO') + '\n' +
-                       'API Key Set: ' + (formData.api_key.trim() ? 'YES' : 'NO') + '\n' +
-                       'Keywords Set: ' + (formData.keywords.trim() ? 'YES' : 'NO') + '\n' +
-                       'Articles Per Day: ' + formData.articles_per_day + '\n\n' +
-                       'Check the browser console for detailed form data.';
-        
-        AutoNulisAdmin.showNotice('info', debugInfo.replace(/\n/g, '<br>'));
-    },    /**
-     * Handle form submission
+        // Make AJAX request
+        $.ajax({
+            url: autoNulisAjax.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'auto_nulis_debug_form',
+                nonce: autoNulisAjax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    AutoNulisAdmin.showNotice('success', 'Debug information sent successfully!');
+                } else {
+                    AutoNulisAdmin.showNotice('error', 'Failed to send debug information: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                AutoNulisAdmin.showNotice('error', 'Debugging failed: ' + error);
+            },
+            complete: function() {
+                $button.prop('disabled', false).text(originalText);
+            }
+        });
+    },
+    
+    /**
+     * Auto-save settings
      */
-    handleFormSubmit: function(e) {
-        var $form = $(this);
+    autoSave: function() {
+        var $field = $(this);
+        var fieldName = $field.attr('name');
+        var fieldValue = $field.is(':checkbox') ? ($field.is(':checked') ? 1 : 0) : $field.val();
         
-        // Only handle settings form submission, not other forms like log filters
-        if (!$form.find('input[name="enabled"]').length) {
-            return true; // Skip handling for non-settings forms
-        }
-        
-        // Ensure enabled checkbox value is properly set
-        var $enabledCheckbox = $form.find('input[name="enabled"][type="checkbox"]');
-        var $enabledHidden = $form.find('input[name="enabled"][type="hidden"]');
-        
-        if (typeof console !== 'undefined') {
-            console.log('Form submission - Checkbox checked:', $enabledCheckbox.is(':checked'));
-            console.log('Form submission - Hidden value:', $enabledHidden.val());
-        }
-        
-        if ($enabledCheckbox.length > 0 && $enabledHidden.length > 0) {
-            if ($enabledCheckbox.is(':checked')) {
-                // When checkbox is checked, remove hidden field so only checkbox value (1) is sent
-                $enabledHidden.remove();
-                if (typeof console !== 'undefined') {
-                    console.log('Checkbox checked - removed hidden field');
+        // Make AJAX request
+        $.ajax({
+            url: autoNulisAjax.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'auto_nulis_auto_save',
+                field: fieldName,
+                value: fieldValue,
+                nonce: autoNulisAjax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Optionally show a success message or update UI
+                } else {
+                    // Handle error
                 }
-            } else {
-                // When checkbox is unchecked, ensure hidden field value is 0
-                $enabledHidden.val('0');
-                if (typeof console !== 'undefined') {
-                    console.log('Checkbox unchecked - set hidden field to 0');
-                }
+            },
+            error: function(xhr, status, error) {
+                // Handle AJAX error
             }
-        }
+        });
+    },
+    
+    /**
+     * Show notice
+     */
+    showNotice: function(type, message) {
+        var $notice = $('#auto-nulis-notice');
+        $notice.removeClass('success error').addClass(type).html(message).show();
         
-        // Log what will be submitted (only in debug mode)
-        if (typeof console !== 'undefined') {
-            var formData = new FormData($form[0]);
-            console.log('Form data being submitted:');
-            for (var pair of formData.entries()) {
-                if (pair[0] === 'enabled') {
-                    console.log('  enabled:', pair[1]);
-                }
-            }
-        }
-        
-        // Continue with form submission
-        return true;    }
-
+        // Auto-hide after 5 seconds
+        setTimeout(function() {
+            $notice.fadeOut();
+        }, 5000);
+    }
 };
+
+// Expose AutoNulisAdmin to global scope
+window.AutoNulisAdmin = AutoNulisAdmin;
 
 })(jQuery);

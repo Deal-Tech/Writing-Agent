@@ -65,8 +65,7 @@ class Auto_Nulis_Admin {
                 $enabled_value = $_POST['enabled'] === '1';
             }
         }
-        
-        $settings = array(
+          $settings = array(
             'enabled' => $enabled_value,
             'articles_per_day' => intval($_POST['articles_per_day']),
             'schedule_time' => sanitize_text_field($_POST['schedule_time']),
@@ -75,6 +74,8 @@ class Auto_Nulis_Admin {
             'post_status' => sanitize_text_field($_POST['post_status']),
             'include_images' => isset($_POST['include_images']) ? true : false,
             'image_source' => sanitize_text_field($_POST['image_source']),
+            'unsplash_api_key' => sanitize_text_field($_POST['unsplash_api_key'] ?? ''),
+            'pexels_api_key' => sanitize_text_field($_POST['pexels_api_key'] ?? ''),
             'category' => intval($_POST['category']),
             'author' => intval($_POST['author']),
             'ai_provider' => sanitize_text_field($_POST['ai_provider']),
@@ -116,8 +117,7 @@ class Auto_Nulis_Admin {
      */
     public function validate_settings($input) {
         $validated = array();
-        
-        // Preserve the enabled value exactly as processed in save_settings
+          // Preserve the enabled value exactly as processed in save_settings
         $validated['enabled'] = isset($input['enabled']) ? $input['enabled'] : false;
         $validated['articles_per_day'] = max(1, min(10, intval($input['articles_per_day'])));
         $validated['schedule_time'] = sanitize_text_field($input['schedule_time']);
@@ -126,8 +126,10 @@ class Auto_Nulis_Admin {
         $validated['post_status'] = in_array($input['post_status'], array('publish', 'draft', 'pending')) ? $input['post_status'] : 'draft';
         $validated['include_images'] = isset($input['include_images']) ? true : false;
         $validated['image_source'] = in_array($input['image_source'], array('unsplash', 'pexels', 'media_library')) ? $input['image_source'] : 'unsplash';
+        $validated['unsplash_api_key'] = sanitize_text_field($input['unsplash_api_key'] ?? '');
+        $validated['pexels_api_key'] = sanitize_text_field($input['pexels_api_key'] ?? '');
         $validated['category'] = max(1, intval($input['category']));
-        $validated['author'] = max(1, intval($input['author']));        $validated['ai_provider'] = in_array($input['ai_provider'], array('gemini', 'openai')) ? $input['ai_provider'] : 'gemini';
+        $validated['author'] = max(1, intval($input['author']));$validated['ai_provider'] = in_array($input['ai_provider'], array('gemini', 'openai')) ? $input['ai_provider'] : 'gemini';
         $validated['api_key'] = sanitize_text_field($input['api_key']);
         $validated['ai_model'] = sanitize_text_field($input['ai_model']);
         
@@ -292,8 +294,7 @@ class Auto_Nulis_Admin {
             'sv' => __('Swedish (Svenska)', 'auto-nulis')
         );
     }
-    
-    /**
+      /**
      * Get image source options
      */
     public function get_image_source_options() {
@@ -301,6 +302,135 @@ class Auto_Nulis_Admin {
             'unsplash' => __('Unsplash API', 'auto-nulis'),
             'pexels' => __('Pexels API', 'auto-nulis'),
             'media_library' => __('WordPress Media Library', 'auto-nulis')
+        );
+    }
+    
+    /**
+     * Test Unsplash API connection
+     */
+    public function test_unsplash_api($api_key) {
+        if (empty($api_key)) {
+            return array(
+                'success' => false,
+                'message' => __('API key is required', 'auto-nulis')
+            );
+        }
+        
+        $url = 'https://api.unsplash.com/search/photos';
+        $params = array(
+            'query' => 'test',
+            'per_page' => 1
+        );
+        
+        $response = wp_remote_get($url . '?' . http_build_query($params), array(
+            'headers' => array(
+                'Authorization' => 'Client-ID ' . $api_key,
+                'Accept-Version' => 'v1'
+            ),
+            'timeout' => 15
+        ));
+        
+        if (is_wp_error($response)) {
+            return array(
+                'success' => false,
+                'message' => __('Connection failed: ', 'auto-nulis') . $response->get_error_message()
+            );
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        
+        if ($response_code === 200) {
+            $data = json_decode($body, true);
+            if (isset($data['results'])) {
+                return array(
+                    'success' => true,
+                    'message' => __('Unsplash API connection successful!', 'auto-nulis'),
+                    'data' => array(
+                        'total_results' => $data['total'] ?? 0,
+                        'rate_limit' => wp_remote_retrieve_header($response, 'X-Ratelimit-Remaining')
+                    )
+                );
+            }
+        } elseif ($response_code === 401) {
+            return array(
+                'success' => false,
+                'message' => __('Invalid API key or unauthorized access', 'auto-nulis')
+            );
+        } elseif ($response_code === 403) {
+            return array(
+                'success' => false,
+                'message' => __('API rate limit exceeded or access forbidden', 'auto-nulis')
+            );
+        }
+        
+        return array(
+            'success' => false,
+            'message' => __('API test failed with response code: ', 'auto-nulis') . $response_code
+        );
+    }
+    
+    /**
+     * Test Pexels API connection
+     */
+    public function test_pexels_api($api_key) {
+        if (empty($api_key)) {
+            return array(
+                'success' => false,
+                'message' => __('API key is required', 'auto-nulis')
+            );
+        }
+        
+        $url = 'https://api.pexels.com/v1/search';
+        $params = array(
+            'query' => 'test',
+            'per_page' => 1
+        );
+        
+        $response = wp_remote_get($url . '?' . http_build_query($params), array(
+            'headers' => array(
+                'Authorization' => $api_key
+            ),
+            'timeout' => 15
+        ));
+        
+        if (is_wp_error($response)) {
+            return array(
+                'success' => false,
+                'message' => __('Connection failed: ', 'auto-nulis') . $response->get_error_message()
+            );
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        
+        if ($response_code === 200) {
+            $data = json_decode($body, true);
+            if (isset($data['photos'])) {
+                return array(
+                    'success' => true,
+                    'message' => __('Pexels API connection successful!', 'auto-nulis'),
+                    'data' => array(
+                        'total_results' => $data['total_results'] ?? 0,
+                        'rate_limit' => wp_remote_retrieve_header($response, 'X-Ratelimit-Remaining')
+                    )
+                );
+            }
+        } elseif ($response_code === 401) {
+            return array(
+                'success' => false,
+                'message' => __('Invalid API key or unauthorized access', 'auto-nulis')
+            );
+        } elseif ($response_code === 429) {
+            return array(
+                'success' => false,
+                'message' => __('API rate limit exceeded', 'auto-nulis')
+            );
+        }
+        
+        return array(
+            'success' => false,
+            'message' => __('API test failed with response code: ', 'auto-nulis') . $response_code
         );
     }
 }

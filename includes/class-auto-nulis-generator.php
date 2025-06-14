@@ -408,26 +408,41 @@ class Auto_Nulis_Generator {
         
         return $slug;
     }
-    
-    /**
+      /**
      * Add featured image to post
      */
     private function add_featured_image($post_id, $keyword) {
         try {
-            $image_url = $this->image_handler->get_relevant_image($keyword, $this->settings['image_source']);
+            if (!class_exists('Auto_Nulis_Image')) {
+                $this->log_message('error', 'Auto_Nulis_Image class not found');
+                return;
+            }
             
-            if ($image_url) {
-                $attachment_id = $this->image_handler->download_and_attach_image($image_url, $post_id, $keyword);
+            if (!isset($this->image_handler)) {
+                $this->image_handler = new Auto_Nulis_Image();
+            }
+            
+            $image_data = $this->image_handler->get_relevant_image($keyword, $this->settings['image_source']);
+              if ($image_data && isset($image_data['url'])) {
+                $attachment_id = $this->image_handler->download_and_attach_image($image_data, $post_id, $keyword);
                 
                 if ($attachment_id) {
                     set_post_thumbnail($post_id, $attachment_id);
-                    $this->log_message('info', "Featured image added to post {$post_id}");
+                    $this->log_message('info', "Featured image added to post {$post_id} from {$this->settings['image_source']}", array(
+                        'image_url' => $image_data['url'],
+                        'alt_text' => $image_data['alt_text'] ?? $keyword
+                    ));
+                } else {
+                    $this->log_message('warning', "Failed to download and attach image for post {$post_id}");
                 }
+            } else {
+                $this->log_message('warning', "No image found for keyword: {$keyword} from source: {$this->settings['image_source']}");
             }
         } catch (Exception $e) {
-            $this->log_message('warning', "Failed to add featured image: " . $e->getMessage(), array(
+            $this->log_message('error', "Failed to add featured image: " . $e->getMessage(), array(
                 'post_id' => $post_id,
-                'keyword' => $keyword
+                'keyword' => $keyword,
+                'image_source' => $this->settings['image_source'] ?? 'unknown'
             ));
         }
     }

@@ -20,6 +20,8 @@ $defaults = array(
     'post_status' => 'draft',
     'include_images' => true,
     'image_source' => 'unsplash',
+    'unsplash_api_key' => '',
+    'pexels_api_key' => '',
     'category' => 1,
     'author' => 1,
     'ai_provider' => 'gemini',
@@ -213,8 +215,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
                         </div>
                     </div>
                 </div>
-                
-                <!-- Image Settings -->
+                  <!-- Image Settings -->
                 <div class="auto-nulis-section">
                     <h2><?php _e('Image Settings', 'auto-nulis'); ?></h2>
                     
@@ -235,6 +236,43 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+                    
+                    <!-- Image API Configuration -->
+                    <div class="auto-nulis-field image-api-field" <?php echo !$settings['include_images'] || $settings['image_source'] === 'media_library' ? 'style="display:none;"' : ''; ?>>
+                        <h3><?php _e('Image API Configuration', 'auto-nulis'); ?></h3>
+                        
+                        <!-- Unsplash API Key -->
+                        <div class="auto-nulis-field unsplash-api-field" <?php echo $settings['image_source'] !== 'unsplash' ? 'style="display:none;"' : ''; ?>>
+                            <label for="unsplash_api_key"><?php _e('Unsplash Access Key', 'auto-nulis'); ?></label>
+                            <input type="password" id="unsplash_api_key" name="unsplash_api_key" value="<?php echo esc_attr($settings['unsplash_api_key'] ?? ''); ?>" class="regular-text">
+                            <button type="button" id="test-unsplash-api" class="button button-secondary">
+                                <?php _e('Test Unsplash API', 'auto-nulis'); ?>
+                            </button>
+                            <p class="description">
+                                <?php printf(
+                                    __('Get your free Unsplash Access Key from %s. Free tier includes 50 requests per hour.', 'auto-nulis'),
+                                    '<a href="https://unsplash.com/developers" target="_blank">Unsplash Developers</a>'
+                                ); ?>
+                            </p>
+                            <div id="unsplash-api-test-result"></div>
+                        </div>
+                        
+                        <!-- Pexels API Key -->
+                        <div class="auto-nulis-field pexels-api-field" <?php echo $settings['image_source'] !== 'pexels' ? 'style="display:none;"' : ''; ?>>
+                            <label for="pexels_api_key"><?php _e('Pexels API Key', 'auto-nulis'); ?></label>
+                            <input type="password" id="pexels_api_key" name="pexels_api_key" value="<?php echo esc_attr($settings['pexels_api_key'] ?? ''); ?>" class="regular-text">
+                            <button type="button" id="test-pexels-api" class="button button-secondary">
+                                <?php _e('Test Pexels API', 'auto-nulis'); ?>
+                            </button>
+                            <p class="description">
+                                <?php printf(
+                                    __('Get your free Pexels API Key from %s. Free tier includes 200 requests per hour and 20,000 per month.', 'auto-nulis'),
+                                    '<a href="https://www.pexels.com/api/" target="_blank">Pexels API</a>'
+                                ); ?>
+                            </p>
+                            <div id="pexels-api-test-result"></div>
+                        </div>
                     </div>
                 </div>
                 

@@ -449,6 +449,8 @@ add_action('wp_ajax_auto_nulis_get_stats', 'auto_nulis_get_stats');
 add_action('wp_ajax_auto_nulis_export_logs', 'auto_nulis_export_logs');
 add_action('wp_ajax_auto_nulis_auto_save', 'auto_nulis_auto_save_setting');
 add_action('wp_ajax_auto_nulis_create_tables', 'auto_nulis_create_tables');
+add_action('wp_ajax_auto_nulis_test_unsplash_api', 'auto_nulis_test_unsplash_api');
+add_action('wp_ajax_auto_nulis_test_pexels_api', 'auto_nulis_test_pexels_api');
 
 /**
  * Test API connection via AJAX
@@ -690,5 +692,63 @@ function auto_nulis_create_tables() {
         wp_send_json_error(array(
             'message' => $e->getMessage()
         ));
+    }
+}
+
+/**
+ * Test Unsplash API connection via AJAX
+ */
+function auto_nulis_test_unsplash_api() {
+    check_ajax_referer('auto_nulis_nonce', 'nonce');
+    
+    if (!current_user_can('manage_options')) {
+        wp_die(__('Unauthorized access', 'auto-nulis'));
+    }
+    
+    if (!class_exists('Auto_Nulis_Admin')) {
+        wp_send_json_error(array(
+            'message' => __('Admin class not available', 'auto-nulis')
+        ));
+        return;
+    }
+    
+    $api_key = sanitize_text_field($_POST['api_key']);
+    
+    $admin = new Auto_Nulis_Admin();
+    $result = $admin->test_unsplash_api($api_key);
+    
+    if ($result['success']) {
+        wp_send_json_success($result);
+    } else {
+        wp_send_json_error($result);
+    }
+}
+
+/**
+ * Test Pexels API connection via AJAX
+ */
+function auto_nulis_test_pexels_api() {
+    check_ajax_referer('auto_nulis_nonce', 'nonce');
+    
+    if (!current_user_can('manage_options')) {
+        wp_die(__('Unauthorized access', 'auto-nulis'));
+    }
+    
+    if (!class_exists('Auto_Nulis_Admin')) {
+        wp_send_json_error(array(
+            'message' => __('Admin class not available', 'auto-nulis')
+        ));
+        return;
+    }
+    
+    $api_key = sanitize_text_field($_POST['api_key']);
+    
+    $admin = new Auto_Nulis_Admin();
+    $result = $admin->test_pexels_api($api_key);
+    
+    if ($result['success']) {
+        wp_send_json_success($result);
+    } else {
+        wp_send_json_error($result);
     }
 }

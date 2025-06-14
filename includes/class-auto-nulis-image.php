@@ -10,19 +10,27 @@ if (!defined('ABSPATH')) {
 
 class Auto_Nulis_Image {
     
-    private $unsplash_access_key = 'YOUR_UNSPLASH_ACCESS_KEY'; // Users need to add their own key
-    private $pexels_api_key = 'YOUR_PEXELS_API_KEY'; // Users need to add their own key
+    private $unsplash_access_key;
+    private $pexels_api_key;
+    private $settings;
     
     /**
      * Constructor
      */
     public function __construct() {
-        // Keys should be configured in settings or wp-config.php
-        if (defined('AUTO_NULIS_UNSPLASH_KEY')) {
+        // Load settings from database
+        $this->settings = get_option('auto_nulis_settings', array());
+        
+        // Set API keys from settings
+        $this->unsplash_access_key = $this->settings['unsplash_api_key'] ?? '';
+        $this->pexels_api_key = $this->settings['pexels_api_key'] ?? '';
+        
+        // Fallback to constants if defined (backward compatibility)
+        if (defined('AUTO_NULIS_UNSPLASH_KEY') && empty($this->unsplash_access_key)) {
             $this->unsplash_access_key = AUTO_NULIS_UNSPLASH_KEY;
         }
         
-        if (defined('AUTO_NULIS_PEXELS_KEY')) {
+        if (defined('AUTO_NULIS_PEXELS_KEY') && empty($this->pexels_api_key)) {
             $this->pexels_api_key = AUTO_NULIS_PEXELS_KEY;
         }
     }
@@ -42,12 +50,11 @@ class Auto_Nulis_Image {
                 return false;
         }
     }
-    
-    /**
+      /**
      * Get image from Unsplash
-     */
-    private function get_unsplash_image($keyword) {
-        if (empty($this->unsplash_access_key) || $this->unsplash_access_key === 'YOUR_UNSPLASH_ACCESS_KEY') {
+     */    private function get_unsplash_image($keyword) {
+        if (empty($this->unsplash_access_key)) {
+            error_log('Auto Nulis Image: Unsplash API key not configured');
             return false;
         }
         
@@ -88,12 +95,12 @@ class Auto_Nulis_Image {
         
         return false;
     }
-    
-    /**
+      /**
      * Get image from Pexels
      */
     private function get_pexels_image($keyword) {
-        if (empty($this->pexels_api_key) || $this->pexels_api_key === 'YOUR_PEXELS_API_KEY') {
+        if (empty($this->pexels_api_key)) {
+            error_log('Auto Nulis Image: Pexels API key not configured');
             return false;
         }
         

@@ -53,7 +53,6 @@ An advanced WordPress plugin that leverages cutting-edge AI technology (Google G
 1. **Download Plugin**
    ```powershell
    # Download the latest release
--  git clone https://github.com/your-username/writing-agent.git
 +  git clone https://github.com/Deal-Tech/Writing-Agent.git
    ```
 
